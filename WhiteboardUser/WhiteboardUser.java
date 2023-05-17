@@ -2,33 +2,63 @@ package WhiteboardUser;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.rmi.RemoteException;
+
 import interfaces.IRemoteBoard;
+import Utils.Utils;
 
 public class WhiteboardUser {
-    private String mode;
-    private Point start;
-    private Point end;
+    private boolean isManager;
+    private String username;
+    private String specifiedFilePath;
+    private String specifiedFileName;
+    private int currentMode;
     private Point remoteStart;
     private Point remoteEnd;
     private String remoteMode;
     private IRemoteBoard remoteBoard;
-    public final String DRAWLINE = "drawLine";
-    public final String FREEDRAW = "freeDraw";
-    public final String DRAWREC = "drawRec";
-    public final String DRAWCIRCLE = "drawCircle";
-    public final String DRAWTRI = "drawTri";
-    public final String DRAWTEXT = "drawText";
-    public final String NOTHING = "";
-    private String name;
-    private Color color;
     private Color remoteColor;
     DefaultListModel chatModel;
-    Graphics g;
-    private boolean isManager;
-    private String fileName;
+
     private BufferedImage image;
     private String textDraw;
     private String remoteTextDraw;
+
+    public WhiteboardUser(boolean isManager, String username) {
+        this.isManager = isManager;
+        this.username = username;
+        this.currentMode = Utils.MODE_DEFAULT_CURSOR;
+    }
+
+
+    public boolean isManager() {
+        return isManager;
+    }
+
+    public void setManager(boolean manager) {
+        isManager = manager;
+    }
+
+    public String getSpecifiedFilePath() {
+        return specifiedFilePath;
+    }
+
+    public void setSpecifiedFilePath(String specifiedFilePath) {
+        this.specifiedFilePath = specifiedFilePath;
+    }
+
+    public String getSpecifiedFileName() {
+        return specifiedFileName;
+    }
+
+    public void setSpecifiedFileName(String specifiedFileName) {
+        this.specifiedFileName = specifiedFileName;
+    }
+
+    public int getCurrentMode() {
+        return currentMode;
+    }
+
+    public void setCurrentMode(int currentMode) {
+        this.currentMode = currentMode;
+    }
 }
