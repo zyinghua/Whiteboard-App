@@ -89,6 +89,31 @@ public class WhiteboardGUI extends JFrame{
         setUpChatPanel();
         setUpInputPanel();
 
+//        JPanel rightPanel = new JPanel();
+//        BoxLayout rightLayout = new BoxLayout(rightPanel, BoxLayout.Y_AXIS);
+//        rightPanel.setLayout(rightLayout);
+//
+//        rightPanel.add(userListPanel);
+//        rightPanel.add(chatPanel);
+//        rightPanel.add(inputPanel);
+//
+//        GroupLayout layout = new GroupLayout(getContentPane());
+//        getContentPane().setLayout(layout);
+//        layout.setHorizontalGroup(
+//                layout.createSequentialGroup()
+//                        .addContainerGap()
+//                        .addComponent(boardPanel)
+//                        .addContainerGap()
+//                        .addComponent(rightPanel)
+//                        .addContainerGap()
+//        );
+//        layout.setVerticalGroup(
+//                layout.createParallelGroup()
+//                        .addComponent(boardPanel)
+//                        .addComponent(rightPanel)
+//        );
+
+
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(layout.createSequentialGroup()
@@ -438,13 +463,12 @@ public class WhiteboardGUI extends JFrame{
         sendButton.setText("Send");
         sendButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-//                try {
-//
-//                } catch (RemoteException e) {
-//                    JOptionPane.showMessageDialog(null,
-//                            "Server is down, the board will close automatically!","warning",JOptionPane.WARNING_MESSAGE);
-//                    System.exit(1);
-//                }
+                String message = inputArea.getText();
+
+                if (!message.isEmpty()) {
+                    inputArea.setText("");
+                    user.addChatMessage(message);
+                }
             }
         });
 
@@ -471,11 +495,7 @@ public class WhiteboardGUI extends JFrame{
 
     private void setUpUserListPanel() {
         userListLabel.setText("Current Users:");
-        userList.setModel(new AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
-        });
+        userList.setModel(user.getCurrUserListModel());
 
         userList.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
@@ -512,11 +532,15 @@ public class WhiteboardGUI extends JFrame{
 
     private void setUpChatPanel() {
         chatLabel.setText("Chat:");
-        chatList.setModel(new AbstractListModel<String>() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public String getElementAt(int i) { return strings[i]; }
+        chatList.setModel(user.getChatMsgListModel());
+
+        chatList.setSelectionModel(new DefaultListSelectionModel() {
+            @Override
+            public void setSelectionInterval(int index0, int index1) {
+                // Do nothing. This prevents items from being selected.
+            }
         });
+
         chatBoxScrollPane.setViewportView(chatList);
 
         GroupLayout chatPanelLayout = new GroupLayout(chatPanel);
