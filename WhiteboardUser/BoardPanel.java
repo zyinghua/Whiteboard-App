@@ -194,13 +194,13 @@ public class BoardPanel extends JPanel {
         clear();
     }
 
-    public void setBoard(BufferedImage board_image) {
-        setBoardImage(board_image);
-        graphics2D = (Graphics2D) board_image.getGraphics();
-        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
+    public void setBoard(Image new_image) {
+        // Deal with transparent new image
+        graphics2D.setPaint(getBackground());
+        graphics2D.fillRect(0, 0, getSize().width, getSize().height);
         graphics2D.setPaint(currColor);
-        graphics2D.setStroke(new BasicStroke(getStrokeWidth()));
+
+        graphics2D.drawImage(new_image, 0, 0, null);
         repaint();
     }
 }

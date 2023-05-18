@@ -242,7 +242,7 @@ public class WhiteboardGUI extends JFrame{
                 if (!selectedFile.getName().toLowerCase().endsWith(".png")) {
                     JOptionPane.showMessageDialog(this, "Please select a file with a suffix of '.png', only a png file is accepted.", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    BufferedImage image = ImageIO.read(selectedFile);
+                    Image image = ImageIO.read(selectedFile).getScaledInstance(boardPanel.getSize().width, boardPanel.getSize().height, Image.SCALE_SMOOTH);;
                     boardPanel.setBoard(image);
                 }
             } catch (IOException e) {
