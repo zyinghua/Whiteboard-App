@@ -30,6 +30,8 @@ public class Utils {
     public static final String ICON_DRAW = ICON_PATH + "draw.png";
     public static final String ICON_PEN = ICON_PATH + "pen.png";
     public static final String ICON_CURSOR = ICON_PATH + "cursor.png";
+    public static final String ICON_PEN_STROKE_WIDTH = ICON_PATH + "g_stroke.png";
+    public static final String ICON_FONT_SIZE = ICON_PATH + "font_size.png";
     public static final int MODE_DEFAULT_CURSOR = 0;
     public static final int MODE_DRAW_LINE = 1;
     public static final int MODE_DRAW_CIRCLE = 2;

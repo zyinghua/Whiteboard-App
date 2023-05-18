@@ -7,7 +7,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import Utils.Utils;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
@@ -20,10 +19,13 @@ public class WhiteboardGUI extends JFrame{
     private JRadioButtonMenuItem drawRect;
     private JRadioButtonMenuItem drawOval;
     private JRadioButtonMenuItem drawCir;
-    private ColorIcon colorIcon;
+    private JMenu shapeMenu;
+    private JMenu textMenu;
     private JMenu colorMenu;
+    private ColorIcon colorIcon;
     private JMenuItem colorSelector;
     private JRadioButtonMenuItem paintText;
+    private JMenuItem font_size_button;
     private JMenu cursorMenu;
     private JRadioButtonMenuItem cursorButton;
     private BoardPanel boardPanel;
@@ -39,17 +41,17 @@ public class WhiteboardGUI extends JFrame{
     private JMenuItem fileClose;
     private JMenu freeDrawMenu;
     private JRadioButtonMenuItem freeDrawButton;
+    private JMenuItem pen_stroke_width_button;
     private JScrollPane inputScrollPane;
     private HintTextArea inputArea;
     private JPanel inputPanel;
+    private JLabel userListLabel;
+    private JList<String> userList;
     private JPanel userListPanel;
+    private JScrollPane userListScrollPane;
     private ButtonGroup toolBtnGroup;
     private JButton sendButton;
-    private JMenu shapeMenu;
-    private JMenu textMenu;
-    private JList<String> userList;
-    private JLabel userListLabel;
-    private JScrollPane userListScrollPane;
+
 
     public WhiteboardGUI() {
         initComponents();
@@ -337,7 +339,30 @@ public class WhiteboardGUI extends JFrame{
             }
         });
 
+        font_size_button.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, InputEvent.CTRL_DOWN_MASK));
+        font_size_button.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_FONT_SIZE))));
+        font_size_button.setText("Font Size");
+
+        font_size_button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int min = 6;
+                int max = 128;
+
+                SpinnerNumberModel model = new SpinnerNumberModel(boardPanel.getGraphicsFontSize(), //initial value
+                        min, //min
+                        max, //max
+                        1); //step
+                JSpinner spinner = new JSpinner(model);
+                int result = JOptionPane.showOptionDialog(null, spinner, "Enter a number between " + min + " and " + max + " inclusively", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+                if (result == JOptionPane.OK_OPTION) {
+                    boardPanel.setGraphicsFontSize((int) spinner.getValue());
+                }
+            }
+        });
+
         textMenu.add(paintText);
+        textMenu.add(font_size_button);
 
         toolBtnGroup.add(paintText);
     }
@@ -355,7 +380,30 @@ public class WhiteboardGUI extends JFrame{
             }
         });
 
+        pen_stroke_width_button.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.CTRL_DOWN_MASK));
+        pen_stroke_width_button.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_PEN_STROKE_WIDTH))));
+        pen_stroke_width_button.setText("Pen Stroke Width");
+
+        pen_stroke_width_button.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int min = 1;
+                int max = 20;
+
+                SpinnerNumberModel model = new SpinnerNumberModel(boardPanel.getStrokeWidth(), //initial value
+                        min, //min
+                        max, //max
+                        1); //step
+                JSpinner spinner = new JSpinner(model);
+                int result = JOptionPane.showOptionDialog(null, spinner, "Enter a number between " + min + " and " + max + " inclusively", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+                if (result == JOptionPane.OK_OPTION) {
+                    boardPanel.setStrokeWidth((int) spinner.getValue());
+                }
+            }
+        });
+
         freeDrawMenu.add(freeDrawButton);
+        freeDrawMenu.add(pen_stroke_width_button);
 
         toolBtnGroup.add(freeDrawButton);
     }
@@ -541,6 +589,8 @@ public class WhiteboardGUI extends JFrame{
         this.freeDrawButton = new JRadioButtonMenuItem();
         this.cursorMenu = new JMenu();
         this.cursorButton = new JRadioButtonMenuItem();
+        this.pen_stroke_width_button = new JMenuItem();
+        this.font_size_button = new JMenuItem();
         this.user = new WhiteboardUser(true, "manager");
     }
 

@@ -12,6 +12,7 @@ import java.awt.image.BufferedImage;
 public class BoardPanel extends JPanel {
     private int currentMode;
     private int strokeWidth;
+    private int graphicsFontSize;
     private Color currColor;
     private BufferedImage board_image;
     private Graphics2D graphics2D;
@@ -77,6 +78,7 @@ public class BoardPanel extends JPanel {
         graphics2D.fillRect(0, 0, getSize().width, getSize().height);
         graphics2D.setPaint(currColor);
         graphics2D.setStroke(new BasicStroke(getStrokeWidth()));
+        graphics2D.setFont(new Font("TimesRoman", Font.PLAIN, graphicsFontSize));
         repaint();
     }
 
@@ -138,7 +140,16 @@ public class BoardPanel extends JPanel {
 
     public void setStrokeWidth(int strokeWidth) {
         this.strokeWidth = strokeWidth;
-        this.graphics2D.setStroke(new BasicStroke(getStrokeWidth()));
+        graphics2D.setStroke(new BasicStroke(strokeWidth));
+    }
+
+    public int getGraphicsFontSize() {
+        return graphicsFontSize;
+    }
+
+    public void setGraphicsFontSize(int graphicsFontSize) {
+        this.graphicsFontSize = graphicsFontSize;
+        graphics2D.setFont(new Font("TimesRoman", Font.PLAIN, graphicsFontSize));
     }
 
     public Color getCurrColor() {
@@ -184,6 +195,7 @@ public class BoardPanel extends JPanel {
 
     private void setDefaultValues() {
         this.strokeWidth = 2;
+        this.graphicsFontSize = 12;
         this.currentMode = Utils.MODE_DEFAULT_CURSOR;
         this.currColor = Color.BLACK;
         this.mouseStartPt = null;
