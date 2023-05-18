@@ -11,7 +11,7 @@ public class WhiteboardUser {
     private String username;
     private String specifiedFilePath;
     private String specifiedFileName;
-    private int currentMode;
+
     private Point remoteStart;
     private Point remoteEnd;
     private String remoteMode;
@@ -26,7 +26,6 @@ public class WhiteboardUser {
     public WhiteboardUser(boolean isManager, String username) {
         this.isManager = isManager;
         this.username = username;
-        this.currentMode = Utils.MODE_DEFAULT_CURSOR;
     }
 
 
@@ -52,13 +51,5 @@ public class WhiteboardUser {
 
     public void setSpecifiedFileName(String specifiedFileName) {
         this.specifiedFileName = specifiedFileName;
-    }
-
-    public int getCurrentMode() {
-        return currentMode;
-    }
-
-    public void setCurrentMode(int currentMode) {
-        this.currentMode = currentMode;
     }
 }
