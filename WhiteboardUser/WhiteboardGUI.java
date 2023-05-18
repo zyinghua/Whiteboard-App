@@ -1,12 +1,15 @@
 package WhiteboardUser;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import Utils.Utils;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.util.Objects;
 
 public class WhiteboardGUI extends JFrame{
@@ -48,9 +51,9 @@ public class WhiteboardGUI extends JFrame{
     private JLabel userListLabel;
     private JScrollPane userListScrollPane;
 
-     public WhiteboardGUI() {
-         initComponents();
-     }
+    public WhiteboardGUI() {
+        initComponents();
+    }
 
     private void initComponents() {
         initGUIComponents();
@@ -59,7 +62,7 @@ public class WhiteboardGUI extends JFrame{
         // Set the close board action
         addWindowListener(new WindowAdapter() {
             public void windowClosing(WindowEvent e) {
-                handleBoardClose(e);
+                handleBoardClose();
             }
         });
 
@@ -87,19 +90,19 @@ public class WhiteboardGUI extends JFrame{
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(boardPanel, Utils.BOARD_PANEL_WIDTH, Utils.BOARD_PANEL_WIDTH, Utils.BOARD_PANEL_WIDTH)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                        .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                                .addComponent(userListPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addContainerGap())
-                                        .addGroup(layout.createSequentialGroup()
-                                                .addComponent(inputPanel, GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                                                .addContainerGap())
-                                        .addGroup(layout.createSequentialGroup()
-                                                .addComponent(chatPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addContainerGap()))
+                .addContainerGap()
+                .addComponent(boardPanel, Utils.BOARD_PANEL_WIDTH, Utils.BOARD_PANEL_WIDTH, Utils.BOARD_PANEL_WIDTH)
+                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
+                        .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(userListPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addContainerGap())
+                        .addGroup(layout.createSequentialGroup()
+                                .addComponent(inputPanel, GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
+                                .addContainerGap())
+                        .addGroup(layout.createSequentialGroup()
+                                .addComponent(chatPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addContainerGap()))
         );
         layout.setVerticalGroup(
                 layout.createParallelGroup(GroupLayout.Alignment.LEADING)
@@ -131,11 +134,7 @@ public class WhiteboardGUI extends JFrame{
         fileNewBoard.setText("New");
         fileNewBoard.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-//                try {
-//
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
+                handleFileNew();
             }
         });
 
@@ -144,12 +143,7 @@ public class WhiteboardGUI extends JFrame{
         fileOpen.setText("Open");
         fileOpen.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-//                try {
-//
-//                } catch (IOException e) {
-//                    JOptionPane.showMessageDialog(null,"The file you want to " +
-//                            "open does not exist!","no file",JOptionPane.WARNING_MESSAGE);
-//                }
+                handleFileOpen();
             }
         });
 
@@ -176,7 +170,7 @@ public class WhiteboardGUI extends JFrame{
         fileClose.setText("Close Board");
         fileClose.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-
+                handleFileClose();
             }
         });
 
@@ -188,35 +182,77 @@ public class WhiteboardGUI extends JFrame{
     }
 
     private void handleFileNew() {
-
+        int result = JOptionPane.showConfirmDialog(this, Utils.NEW_BOARD_WARNING, "New Board", JOptionPane.YES_NO_OPTION);
+        if (result == JOptionPane.YES_OPTION) {
+            boardPanel.clearBoard();
+        }
     }
 
     private void handleFileSave() {
-
+        if (user.getSpecifiedFilePath() == null) {
+            handleFileSaveAs();
+        } else {
+            try {
+                ImageIO.write(boardPanel.getBoardImage(), "png", user.getSpecifiedFilePath());
+                JOptionPane.showMessageDialog(this, "Image saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Save failed, an error occurred, please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
     }
 
     private void handleFileSaveAs() {
-        try{
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("PNG Files", "png");
+        fileChooser.addChoosableFileFilter(filter);
 
-        }catch (NullPointerException e){
+        int returnValue = fileChooser.showSaveDialog(null);
 
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            try {
+                if (!selectedFile.getName().toLowerCase().endsWith(".png")) {
+                    selectedFile = new File(selectedFile.getParentFile(), selectedFile.getName() + ".png");
+                }
+
+                user.setSpecifiedFilePath(selectedFile);
+                ImageIO.write(boardPanel.getBoardImage(), "png", selectedFile);
+                JOptionPane.showMessageDialog(this, "Image saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Save failed, an error occurred, please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
     private void handleFileOpen() {
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("PNG Files", "png");
+        fileChooser.addChoosableFileFilter(filter);
 
         int returnValue = fileChooser.showOpenDialog(null);
 
         if (returnValue == JFileChooser.APPROVE_OPTION) {
-            File selectedFolder = fileChooser.getSelectedFile();
-            System.out.println("Selected folder: " + selectedFolder.getAbsolutePath());
+            File selectedFile = fileChooser.getSelectedFile();
+
+            try {
+                if (!selectedFile.getName().toLowerCase().endsWith(".png")) {
+                    JOptionPane.showMessageDialog(this, "Please select a file with a suffix of '.png', only a png file is accepted.", "Error", JOptionPane.ERROR_MESSAGE);
+                } else {
+                    BufferedImage image = ImageIO.read(selectedFile);
+                    boardPanel.setBoard(image);
+                }
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Save failed, an error occurred, please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
         }
     }
 
     private void handleFileClose() {
-
+        handleBoardClose();
     }
 
     private void setUpShapeMenu() {
@@ -228,7 +264,6 @@ public class WhiteboardGUI extends JFrame{
         drawLine.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_LINE))));
         drawLine.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                boardPanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
                 boardPanel.setCurrentMode(Utils.MODE_DRAW_LINE);
             }
         });
@@ -238,7 +273,6 @@ public class WhiteboardGUI extends JFrame{
         drawRect.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_RECTANGLE))));
         drawRect.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                boardPanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
                 boardPanel.setCurrentMode(Utils.MODE_DRAW_RECT);
             }
         });
@@ -248,7 +282,6 @@ public class WhiteboardGUI extends JFrame{
         drawOval.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_OVAL))));
         drawOval.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                boardPanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
                 boardPanel.setCurrentMode(Utils.MODE_DRAW_OVAL);
             }
         });
@@ -258,7 +291,6 @@ public class WhiteboardGUI extends JFrame{
         drawCir.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_CIRCLE))));
         drawCir.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                boardPanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
                 boardPanel.setCurrentMode(Utils.MODE_DRAW_CIRCLE);
             }
         });
@@ -301,7 +333,6 @@ public class WhiteboardGUI extends JFrame{
         paintText.setText("Paint Text");
         paintText.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                boardPanel.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
                 boardPanel.setCurrentMode(Utils.MODE_PAINT_TEXT);
             }
         });
@@ -320,7 +351,6 @@ public class WhiteboardGUI extends JFrame{
         freeDrawButton.setText("Pen");
         freeDrawButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                boardPanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
                 boardPanel.setCurrentMode(Utils.MODE_FREE_DRAW);
             }
         });
@@ -338,7 +368,6 @@ public class WhiteboardGUI extends JFrame{
         cursorButton.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_CURSOR))));
         cursorButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                boardPanel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 boardPanel.setCurrentMode(Utils.MODE_DEFAULT_CURSOR);
             }
         });
@@ -461,12 +490,12 @@ public class WhiteboardGUI extends JFrame{
         );
     }
 
-    private void handleBoardClose(WindowEvent e) {
-         String msg = user.isManager() ? Utils.BOARD_CLOSE_MANAGER : Utils.BOARD_CLOSE_CLIENT;
-         int option = JOptionPane.showConfirmDialog(null, msg, "exit", JOptionPane.YES_NO_OPTION);
-         if (option == JOptionPane.YES_OPTION) {
-             System.exit(0);
-         }
+    private void handleBoardClose() {
+        String msg = user.isManager() ? Utils.BOARD_CLOSE_MANAGER : Utils.BOARD_CLOSE_CLIENT;
+        int option = JOptionPane.showConfirmDialog(null, msg, "exit", JOptionPane.YES_NO_OPTION);
+        if (option == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
     }
 
     private void initFundamentalComponents() {

@@ -1,7 +1,10 @@
 package Utils;
 
+import java.awt.*;
+
 public class Utils {
     public static final String BOARD_SAVE_DEFAULT_PATH = "whiteboard.png";
+    public static final Color BOARD_BACKGROUND_COLOR = Color.WHITE;
     public static final int BOARD_PANEL_WIDTH = 1000;
     public static final int BOARD_PANEL_HEIGHT = 800;
     public static final int BOARD_RIGHT_SECTION_WIDTH = 300;
@@ -34,4 +37,5 @@ public class Utils {
     public static final int MODE_DRAW_RECT = 4;
     public static final int MODE_FREE_DRAW = 5;
     public static final int MODE_PAINT_TEXT = 6;
+    public static final String NEW_BOARD_WARNING = "Create a new board will overwrite the current one, please make sure you have saved the current one as needed before you continue. Are you sure to continue?";
 }

@@ -18,7 +18,7 @@ public class BoardPanel extends JPanel {
     private Point mouseStartPt, mouseEndPt;
 
     public BoardPanel() {
-        setBackground(Color.WHITE);
+        setBackground(Utils.BOARD_BACKGROUND_COLOR);
         setDoubleBuffered(false);
         setDefaultValues();
 
@@ -69,11 +69,11 @@ public class BoardPanel extends JPanel {
             clear();
         }
 
-        g.drawImage(board_image, 0, 0, null);
+        g.drawImage(board_image, 0, 0, null); // board_image by itself nothing to do with the panel, binding here.
     }
 
     public void clear() {
-        graphics2D.setPaint(Color.WHITE);
+        graphics2D.setPaint(getBackground());
         graphics2D.fillRect(0, 0, getSize().width, getSize().height);
         graphics2D.setPaint(currColor);
         graphics2D.setStroke(new BasicStroke(getStrokeWidth()));
@@ -156,6 +156,30 @@ public class BoardPanel extends JPanel {
 
     public void setCurrentMode(int currentMode) {
         this.currentMode = currentMode;
+
+        if (currentMode == Utils.MODE_DEFAULT_CURSOR) {
+            setCursor(Cursor.getDefaultCursor());
+        } else if (currentMode == Utils.MODE_FREE_DRAW) {
+            setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+        } else if (currentMode == Utils.MODE_DRAW_LINE) {
+            setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+        } else if (currentMode == Utils.MODE_DRAW_RECT) {
+            setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+        } else if (currentMode == Utils.MODE_DRAW_OVAL) {
+            setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+        } else if (currentMode == Utils.MODE_DRAW_CIRCLE) {
+            setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
+        } else if (currentMode == Utils.MODE_PAINT_TEXT) {
+            setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+        }
+    }
+
+    public BufferedImage getBoardImage() {
+        return board_image;
+    }
+
+    public void setBoardImage(BufferedImage board_image) {
+        this.board_image = board_image;
     }
 
     private void setDefaultValues() {
@@ -164,5 +188,19 @@ public class BoardPanel extends JPanel {
         this.currColor = Color.BLACK;
         this.mouseStartPt = null;
         this.mouseEndPt = null;
+    }
+
+    public void clearBoard() {
+        clear();
+    }
+
+    public void setBoard(BufferedImage board_image) {
+        setBoardImage(board_image);
+        graphics2D = (Graphics2D) board_image.getGraphics();
+        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        graphics2D.setPaint(currColor);
+        graphics2D.setStroke(new BasicStroke(getStrokeWidth()));
+        repaint();
     }
 }
