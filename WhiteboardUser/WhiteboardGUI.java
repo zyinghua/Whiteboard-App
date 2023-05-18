@@ -55,13 +55,14 @@ public class WhiteboardGUI extends JFrame{
 
      public WhiteboardGUI() {
          initComponents();
+
          board_image  = new BufferedImage(boardPanel.getWidth(), boardPanel.getHeight(), BufferedImage.TYPE_INT_RGB);
          g = board_image.createGraphics();
          g.setColor(Color.white);
          g.fillRect(0, 0, boardPanel.getWidth(), boardPanel.getHeight());
          currColor = Color.BLACK;
-         mouseStartPt = new Point();
-         mouseEndPt = new Point();
+         mouseStartPt = null;
+         mouseEndPt = null;
      }
 
     private void initComponents() {
@@ -70,8 +71,8 @@ public class WhiteboardGUI extends JFrame{
 
         // Set the close board action
         addWindowListener(new WindowAdapter() {
-            public void windowClosing(WindowEvent evt) {
-                handleBoardClose(evt);
+            public void windowClosing(WindowEvent e) {
+                handleBoardClose(e);
             }
         });
 
@@ -100,7 +101,7 @@ public class WhiteboardGUI extends JFrame{
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(boardPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(boardPanel, Utils.BOARD_PANEL_WIDTH, Utils.BOARD_PANEL_WIDTH, Utils.BOARD_PANEL_WIDTH)
                                 .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
                                 .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                         .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
@@ -117,7 +118,7 @@ public class WhiteboardGUI extends JFrame{
                 layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                         .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
-                                .addComponent(boardPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(boardPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
                                 .addContainerGap())
                         .addGroup(layout.createSequentialGroup()
                                 .addContainerGap()
@@ -142,7 +143,7 @@ public class WhiteboardGUI extends JFrame{
         fileNewBoard.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_NEW_BOARD))));
         fileNewBoard.setText("New");
         fileNewBoard.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
+            public void actionPerformed(ActionEvent e) {
 //                try {
 //
 //                } catch (IOException e) {
@@ -155,7 +156,7 @@ public class WhiteboardGUI extends JFrame{
         fileOpen.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_OPEN_BOARD))));
         fileOpen.setText("Open");
         fileOpen.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
+            public void actionPerformed(ActionEvent e) {
 //                try {
 //
 //                } catch (IOException e) {
@@ -169,7 +170,7 @@ public class WhiteboardGUI extends JFrame{
         fileSave.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_SAVE_BOARD))));
         fileSave.setText("Save");
         fileSave.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
+            public void actionPerformed(ActionEvent e) {
                 handleFileSave();
             }
         });
@@ -178,7 +179,7 @@ public class WhiteboardGUI extends JFrame{
         fileSaveAs.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_SAVE_AS_BOARD))));
         fileSaveAs.setText("Save As");
         fileSaveAs.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
+            public void actionPerformed(ActionEvent e) {
                 handleFileSaveAs();
             }
         });
@@ -187,7 +188,7 @@ public class WhiteboardGUI extends JFrame{
         fileClose.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_CLOSE_BOARD))));
         fileClose.setText("Close Board");
         fileClose.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
+            public void actionPerformed(ActionEvent e) {
 
             }
         });
@@ -239,7 +240,7 @@ public class WhiteboardGUI extends JFrame{
         drawLine.setText("Line");
         drawLine.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_LINE))));
         drawLine.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
+            public void actionPerformed(ActionEvent e) {
                 boardPanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
                 user.setCurrentMode(Utils.MODE_DRAW_LINE);
             }
@@ -249,7 +250,7 @@ public class WhiteboardGUI extends JFrame{
         drawRect.setText("Rectangle");
         drawRect.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_RECTANGLE))));
         drawRect.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
+            public void actionPerformed(ActionEvent e) {
                 boardPanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
                 user.setCurrentMode(Utils.MODE_DRAW_RECT);
             }
@@ -259,7 +260,7 @@ public class WhiteboardGUI extends JFrame{
         drawOval.setText("Oval");
         drawOval.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_OVAL))));
         drawOval.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
+            public void actionPerformed(ActionEvent e) {
                 boardPanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
                 user.setCurrentMode(Utils.MODE_DRAW_OVAL);
             }
@@ -269,7 +270,7 @@ public class WhiteboardGUI extends JFrame{
         drawCir.setText("Circle");
         drawCir.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_CIRCLE))));
         drawCir.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
+            public void actionPerformed(ActionEvent e) {
                 boardPanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
                 user.setCurrentMode(Utils.MODE_DRAW_CIRCLE);
             }
@@ -293,11 +294,12 @@ public class WhiteboardGUI extends JFrame{
         colorSelector.setIcon(this.colorIcon);
         colorSelector.setText("Change Color");
         colorSelector.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
+            public void actionPerformed(ActionEvent e) {
                 Color color = JColorChooser.showDialog(null, "Please select a color", Color.BLACK);
                 colorIcon.setColor(color);
                 colorSelector.repaint();
                 currColor = color;
+                g.setColor(currColor);
             }
         });
 
@@ -312,7 +314,7 @@ public class WhiteboardGUI extends JFrame{
         paintText.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/icons/paint_text.png"))));
         paintText.setText("Paint Text");
         paintText.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
+            public void actionPerformed(ActionEvent e) {
                 boardPanel.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
                 user.setCurrentMode(Utils.MODE_PAINT_TEXT);
             }
@@ -331,7 +333,7 @@ public class WhiteboardGUI extends JFrame{
         freeDrawButton.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_PEN))));
         freeDrawButton.setText("Pen");
         freeDrawButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
+            public void actionPerformed(ActionEvent e) {
                 boardPanel.setCursor(Cursor.getPredefinedCursor(Cursor.CROSSHAIR_CURSOR));
                 user.setCurrentMode(Utils.MODE_FREE_DRAW);
             }
@@ -349,7 +351,7 @@ public class WhiteboardGUI extends JFrame{
         cursorButton.setText("Default Cursor");
         cursorButton.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_CURSOR))));
         cursorButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
+            public void actionPerformed(ActionEvent e) {
                 boardPanel.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                 user.setCurrentMode(Utils.MODE_DEFAULT_CURSOR);
             }
@@ -363,38 +365,48 @@ public class WhiteboardGUI extends JFrame{
     private void setUpBoardPanel() {
         boardPanel.setBackground(Color.white);
         boardPanel.addMouseMotionListener(new MouseMotionAdapter() {  // Account for continuous mouse action
-            public void mouseDragged(MouseEvent evt) {
+            public void mouseDragged(MouseEvent e) {
+                updateEndPt(e);
+
                 if (user.getCurrentMode() == Utils.MODE_FREE_DRAW) {
-                    updateEndPt(evt);
+                    draw(g);
+                    updateStartPt(e);
+                }else if(user.getCurrentMode() != Utils.MODE_PAINT_TEXT || user.getCurrentMode() != Utils.MODE_DEFAULT_CURSOR){
+                    if(checkPtsValidity()) {
+                        g.setXORMode(Color.WHITE);
+                        draw(g);
+                    }
                     draw(g);
                 }
             }
         });
 
         boardPanel.addMouseListener(new MouseAdapter() {  // Account for single discrete mouse action
-            public void mouseClicked(MouseEvent evt) {
-                updateBothPts(evt);
+            public void mouseClicked(MouseEvent e) {
+                updateBothPts(e);
 
                 if(user.getCurrentMode() == Utils.MODE_PAINT_TEXT) {
                     try {
                         draw(g);
-                    } catch (Exception e) {
+                    } catch (Exception ex) {
                         JOptionPane.showMessageDialog(null,
                                     "Looks like the manager is disconnected, the board will now close immediately.", "Board Closing", JOptionPane.WARNING_MESSAGE);
                         System.exit(1);
                     }
                 }
             }
-            public void mousePressed(MouseEvent evt) {
-                updateStartPt(evt);
+            public void mousePressed(MouseEvent e) {
+                updateStartPt(e);
             }
-            public void mouseReleased(MouseEvent evt) {
-                updateEndPt(evt);
+            public void mouseReleased(MouseEvent e) {
+                g.setPaintMode();
+                updateEndPt(e);
                 draw(g);
+                resetPts();
             }
         });
 
-        boardPanel.setPreferredSize(new Dimension(800, getSize().height + Utils.BOARD_HEIGHT_ADDITION));
+        boardPanel.setPreferredSize(new Dimension(Utils.BOARD_PANEL_WIDTH, Utils.BOARD_PANEL_HEIGHT));
     }
 
     private void setUpInputPanel() {
@@ -405,7 +417,7 @@ public class WhiteboardGUI extends JFrame{
 
         sendButton.setText("Send");
         sendButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
+            public void actionPerformed(ActionEvent e) {
 //                try {
 //
 //                } catch (RemoteException e) {
@@ -446,7 +458,7 @@ public class WhiteboardGUI extends JFrame{
         });
 
         userList.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent evt) {
+            public void mouseClicked(MouseEvent e) {
 //                try {
 //
 //                } catch (RemoteException e) {
@@ -506,7 +518,7 @@ public class WhiteboardGUI extends JFrame{
         );
     }
 
-    private void handleBoardClose(WindowEvent evt) {
+    private void handleBoardClose(WindowEvent e) {
          String msg = user.isManager() ? Utils.BOARD_CLOSE_MANAGER : Utils.BOARD_CLOSE_CLIENT;
          int option = JOptionPane.showConfirmDialog(null, msg, "exit", JOptionPane.YES_NO_OPTION);
          if (option == JOptionPane.YES_OPTION) {
@@ -631,43 +643,51 @@ public class WhiteboardGUI extends JFrame{
         }else if(user.getCurrentMode() == Utils.MODE_DRAW_LINE){
             g.drawLine(mouseStartPt.x, mouseStartPt.y, mouseEndPt.x, mouseEndPt.y);
         }else if(user.getCurrentMode() == Utils.MODE_DRAW_RECT){
-            g.drawRect(mouseStartPt.x, mouseStartPt.y, Math.abs(mouseEndPt.x - mouseStartPt.x), Math.abs(mouseEndPt.y - mouseStartPt.y));
+            g.drawRect(getShapeStartPt().x, getShapeStartPt().y, Math.abs(mouseEndPt.x - mouseStartPt.x), Math.abs(mouseEndPt.y - mouseStartPt.y));
         }else if(user.getCurrentMode() == Utils.MODE_DRAW_OVAL){
-            int x = Math.min(mouseStartPt.x, mouseEndPt.x);
-            int y = Math.min(mouseStartPt.y, mouseEndPt.y);
-            g.drawOval(x, y, Math.abs(mouseEndPt.x - mouseStartPt.x), Math.abs(mouseEndPt.y - mouseStartPt.y));
+            g.drawOval(getShapeStartPt().x, getShapeStartPt().y, Math.abs(mouseEndPt.x - mouseStartPt.x), Math.abs(mouseEndPt.y - mouseStartPt.y));
         }else if(user.getCurrentMode() == Utils.MODE_DRAW_CIRCLE){
-            int x = Math.min(mouseStartPt.x, mouseEndPt.x);
-            int y = Math.min(mouseStartPt.y, mouseEndPt.y);
-            int width = Math.max(mouseStartPt.x, mouseEndPt.x) - x;
-            int height = Math.max(mouseStartPt.y, mouseEndPt.y) - y;
+            int width = Math.abs(mouseStartPt.x - mouseEndPt.x);
+            int height = Math.abs(mouseStartPt.y - mouseEndPt.y);
             int diameter = Math.max(width, height);
-            g.drawOval(x, y, diameter, diameter);
+            g.drawOval(getShapeStartPt().x, getShapeStartPt().y, diameter, diameter);
         } else if(user.getCurrentMode() == Utils.MODE_PAINT_TEXT){
             String text = JOptionPane.showInputDialog(null, "Please enter the text");
             if(text != null){
                 g.drawString(text, mouseStartPt.x, mouseStartPt.y);
             }
         }
-
         //boardPanel.repaint();
         boardPanel.getGraphics().drawImage(board_image, 0, 0, null);
     }
 
-    private void updateStartPt(MouseEvent evt) {
-        mouseStartPt = evt.getPoint();
+    private void updateStartPt(MouseEvent e) {
+        mouseStartPt = e.getPoint();
     }
 
-    private void updateEndPt(MouseEvent evt) {
-        mouseEndPt = evt.getPoint();
+    private void updateEndPt(MouseEvent e) {
+        mouseEndPt = e.getPoint();
     }
 
-    private void updateBothPts(MouseEvent evt) {
-        updateStartPt(evt);
-        updateEndPt(evt);
+    private void updateBothPts(MouseEvent e) {
+        updateStartPt(e);
+        updateEndPt(e);
     }
 
-    public static void main(String[] args) {
+    private void resetPts() {
+        mouseStartPt = null;
+        mouseEndPt = null;
+    }
+
+    private Point getShapeStartPt() {
+        return new Point(Math.min(mouseStartPt.x, mouseEndPt.x), Math.min(mouseStartPt.y, mouseEndPt.y));
+    }
+
+    private boolean checkPtsValidity() {
+         return mouseStartPt != null && mouseEndPt != null;
+    }
+
+        public static void main(String[] args) {
         WhiteboardGUI board = new WhiteboardGUI();
         board.setVisible(true);
 
