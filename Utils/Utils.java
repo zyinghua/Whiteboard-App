@@ -5,11 +5,8 @@ import java.awt.*;
 public class Utils {
     public static final String BOARD_SAVE_DEFAULT_PATH = "whiteboard.png";
     public static final Color BOARD_BACKGROUND_COLOR = Color.WHITE;
-    public static final int BOARD_PANEL_WIDTH = 1000;
-    public static final int BOARD_PANEL_HEIGHT = 800;
-    public static final int BOARD_RIGHT_SECTION_WIDTH = 300;
-    public static final int BOARD_WIDTH_ADDITION = 400;
-    public static final int BOARD_HEIGHT_ADDITION = 300;
+    public static final int BOARD_WIDTH = 1300;
+    public static final int BOARD_HEIGHT = 800;
     public static final int BOARD_MENU_BAR_HEIGHT = 35;
     public static final String BOARD_CLOSE_MANAGER = "You are the manager, closing the board will terminate the program and force all clients to exit, do you want to continue?";
     public static final String BOARD_CLOSE_CLIENT = "Are you sure to exit the board?";

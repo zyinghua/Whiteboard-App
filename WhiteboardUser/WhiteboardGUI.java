@@ -89,66 +89,35 @@ public class WhiteboardGUI extends JFrame{
         setUpChatPanel();
         setUpInputPanel();
 
-//        JPanel rightPanel = new JPanel();
-//        BoxLayout rightLayout = new BoxLayout(rightPanel, BoxLayout.Y_AXIS);
-//        rightPanel.setLayout(rightLayout);
-//
-//        rightPanel.add(userListPanel);
-//        rightPanel.add(chatPanel);
-//        rightPanel.add(inputPanel);
-//
-//        GroupLayout layout = new GroupLayout(getContentPane());
-//        getContentPane().setLayout(layout);
-//        layout.setHorizontalGroup(
-//                layout.createSequentialGroup()
-//                        .addContainerGap()
-//                        .addComponent(boardPanel)
-//                        .addContainerGap()
-//                        .addComponent(rightPanel)
-//                        .addContainerGap()
-//        );
-//        layout.setVerticalGroup(
-//                layout.createParallelGroup()
-//                        .addComponent(boardPanel)
-//                        .addComponent(rightPanel)
-//        );
+        JPanel rightPanel = new JPanel();
+        BoxLayout rightLayout = new BoxLayout(rightPanel, BoxLayout.Y_AXIS);
+        rightPanel.setLayout(rightLayout);
 
+        rightPanel.add(userListPanel);
+        rightPanel.add(chatPanel);
+        rightPanel.add(inputPanel);
 
         GroupLayout layout = new GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(boardPanel, Utils.BOARD_PANEL_WIDTH, Utils.BOARD_PANEL_WIDTH, Utils.BOARD_PANEL_WIDTH)
-                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                        .addGroup(GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(userListPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addContainerGap())
-                        .addGroup(layout.createSequentialGroup()
-                                .addComponent(inputPanel, GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-                                .addContainerGap())
-                        .addGroup(layout.createSequentialGroup()
-                                .addComponent(chatPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addContainerGap()))
+        layout.setHorizontalGroup(
+                layout.createSequentialGroup()
+                        .addGap(10)
+                        .addComponent(boardPanel)
+                        .addGap(15)
+                        .addComponent(rightPanel)
+                        .addGap(10)
         );
         layout.setVerticalGroup(
-                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(boardPanel, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addContainerGap())
-                        .addGroup(layout.createSequentialGroup()
-                                .addContainerGap()
-                                .addComponent(userListPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(chatPanel, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(inputPanel)
-                                .addPreferredGap(LayoutStyle.ComponentPlacement.RELATED)
-                                .addContainerGap())
-        );
+                layout.createSequentialGroup()
+                        .addGap(10, 10, 15)
+                        .addGroup(layout.createParallelGroup()
+                                .addComponent(boardPanel)
+                                .addComponent(rightPanel)
+                        )
+                        .addGap(10, 10, 15)
 
-        pack();
+
+        );
     }
 
     private void setUpFileMenu() {
@@ -451,7 +420,7 @@ public class WhiteboardGUI extends JFrame{
     }
 
     private void setUpBoardPanel() {
-        boardPanel.setPreferredSize(new Dimension(Utils.BOARD_PANEL_WIDTH, Utils.BOARD_PANEL_HEIGHT));
+        boardPanel.setPreferredSize(new Dimension((int) (Utils.BOARD_WIDTH * 0.7), Utils.BOARD_HEIGHT));
     }
 
     private void setUpInputPanel() {
@@ -682,12 +651,7 @@ public class WhiteboardGUI extends JFrame{
 
     public static void main(String[] args) {
         WhiteboardGUI board = new WhiteboardGUI();
+        board.setSize(new Dimension(Utils.BOARD_WIDTH, Utils.BOARD_HEIGHT));
         board.setVisible(true);
-
-        Dimension size = board.getSize();
-        size.width += Utils.BOARD_WIDTH_ADDITION;
-        size.height += Utils.BOARD_HEIGHT_ADDITION;
-
-        board.setSize(size);
     }
 }
