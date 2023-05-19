@@ -503,7 +503,7 @@ public class WhiteboardGUI extends JFrame{
 
     private void setUpChatPanel() {
         chatLabel.setText("Chat:");
-        chatList.setModel(user.getChatMsgListModel());
+        chatList.setModel(user.getChatListModel());
 
         chatList.setSelectionModel(new DefaultListSelectionModel() {
             @Override
@@ -542,7 +542,7 @@ public class WhiteboardGUI extends JFrame{
     }
 
     private void initFundamentalComponents() {
-        setTitle(guiName);
+        setTitle(guiName + " - " + user.getUsername());
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         setResizable(false);
 
