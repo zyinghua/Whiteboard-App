@@ -66,20 +66,23 @@ public class BoardPanel extends JPanel {
         if (board_image == null) {
             board_image = new BufferedImage(getSize().width, getSize().height, BufferedImage.TYPE_INT_RGB);
             graphics2D = (Graphics2D) board_image.getGraphics();
-            graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            initGraphics();
             clear();
         }
 
-        g.drawImage(board_image, 0, 0, null); // board_image by itself nothing to do with the panel, binding here.
+        g.drawImage(board_image, 0, 0, null); // board_image by itself nothing to do with the panel, rendering here.
     }
 
     public void clear() {
         graphics2D.setPaint(getBackground());
         graphics2D.fillRect(0, 0, getSize().width, getSize().height);
         graphics2D.setPaint(currColor);
+    }
+
+    public void initGraphics() {
+        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics2D.setStroke(new BasicStroke(getStrokeWidth()));
         graphics2D.setFont(new Font("TimesRoman", Font.PLAIN, graphicsFontSize));
-        repaint();
     }
 
     private void draw() {
@@ -204,13 +207,11 @@ public class BoardPanel extends JPanel {
 
     public void clearBoard() {
         clear();
+        repaint();
     }
 
     public void setBoard(Image new_image) {
-        // Deal with transparent new image
-        graphics2D.setPaint(getBackground());
-        graphics2D.fillRect(0, 0, getSize().width, getSize().height);
-        graphics2D.setPaint(currColor);
+        clear(); // Deal with transparent new image
 
         graphics2D.drawImage(new_image, 0, 0, null);
         repaint();
