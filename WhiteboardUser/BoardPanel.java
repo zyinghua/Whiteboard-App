@@ -5,12 +5,15 @@ package WhiteboardUser;
 
 import Utils.Utils;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public class BoardPanel extends JPanel {
     private int currentMode;
@@ -22,6 +25,10 @@ public class BoardPanel extends JPanel {
     private Point mouseStartPt, mouseEndPt;
 
     public BoardPanel() {
+        initComponents();
+    }
+
+    private void initComponents() {
         setBackground(Utils.BOARD_BACKGROUND_COLOR);
         setDoubleBuffered(false);
         setDefaultValues();
@@ -67,7 +74,6 @@ public class BoardPanel extends JPanel {
     protected void paintComponent(Graphics g) {
         if (board_image == null) {
             board_image = new BufferedImage(getSize().width, getSize().height, BufferedImage.TYPE_INT_RGB);
-            graphics2D = (Graphics2D) board_image.getGraphics();
             initGraphics();
             clear();
         }
@@ -82,9 +88,11 @@ public class BoardPanel extends JPanel {
     }
 
     public void initGraphics() {
+        graphics2D = (Graphics2D) board_image.getGraphics();
         graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics2D.setStroke(new BasicStroke(getStrokeWidth()));
         graphics2D.setFont(new Font("TimesRoman", Font.PLAIN, graphicsFontSize));
+        graphics2D.setColor(currColor);
     }
 
     private void draw() {
@@ -194,8 +202,15 @@ public class BoardPanel extends JPanel {
         return board_image;
     }
 
+    public byte[] getBoardImagesInBytes() throws IOException{
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ImageIO.write(board_image, "png", baos);
+        return baos.toByteArray();
+    }
+
     public void setBoardImage(BufferedImage board_image) {
         this.board_image = board_image;
+        initGraphics();
     }
 
     private void setDefaultValues() {
