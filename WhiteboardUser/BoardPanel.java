@@ -74,9 +74,9 @@ public class BoardPanel extends JPanel {
     }
 
     public void clear() {
-        graphics2D.setPaint(getBackground());
+        graphics2D.setColor(getBackground());
         graphics2D.fillRect(0, 0, getSize().width, getSize().height);
-        graphics2D.setPaint(currColor);
+        graphics2D.setColor(currColor);
     }
 
     public void initGraphics() {
@@ -197,8 +197,8 @@ public class BoardPanel extends JPanel {
     }
 
     private void setDefaultValues() {
-        this.strokeWidth = 2;
-        this.graphicsFontSize = 12;
+        this.strokeWidth = Utils.DEFAULT_STROKE_WIDTH;
+        this.graphicsFontSize = Utils.DEFAULT_FONT_SIZE;
         this.currentMode = Utils.MODE_DEFAULT_CURSOR;
         this.currColor = Color.BLACK;
         this.mouseStartPt = null;

@@ -36,5 +36,7 @@ public class Utils {
     public static final int MODE_DRAW_RECT = 4;
     public static final int MODE_FREE_DRAW = 5;
     public static final int MODE_PAINT_TEXT = 6;
+    public static final int DEFAULT_STROKE_WIDTH = 2;
+    public static final int DEFAULT_FONT_SIZE = 12;
     public static final String NEW_BOARD_WARNING = "Create a new board will overwrite the current one, please make sure you have saved the current one as needed before you continue. Are you sure to continue?";
 }
