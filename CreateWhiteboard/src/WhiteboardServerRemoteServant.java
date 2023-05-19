@@ -16,12 +16,12 @@ public class WhiteboardServerRemoteServant extends UnicastRemoteObject implement
     }
 
     @Override
-    public void addNewUser(String username) throws RemoteException {
-
+    public boolean checkNameValidity(String username) throws RemoteException {
+        return manager.checkNameValidity(username);
     }
 
     @Override
     public boolean joinWhiteboard(String username) throws RemoteException {
-        return true;
+        return manager.joinWhiteboard(username);
     }
 }

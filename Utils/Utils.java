@@ -3,6 +3,7 @@
 
 package Utils;
 
+import javax.swing.*;
 import java.awt.*;
 
 public class Utils {
@@ -43,4 +44,48 @@ public class Utils {
     public static final int DEFAULT_STROKE_WIDTH = 2;
     public static final int DEFAULT_FONT_SIZE = 12;
     public static final String NEW_BOARD_WARNING = "Create a new board will overwrite the current one, please make sure you have saved the current one as needed before you continue. Are you sure to continue?";
+
+    public static class WaitingDialog extends JDialog {
+        private boolean isCanceled;
+        private final JLabel messageLabel;
+        private final JProgressBar progressBar;
+        private final JButton cancelButton;
+
+        public WaitingDialog(String message) {
+            isCanceled = false;
+
+            messageLabel = new JLabel(message, SwingConstants.CENTER);
+
+            progressBar = new JProgressBar();
+            progressBar.setIndeterminate(true);
+
+            cancelButton = new JButton("Cancel");
+            JPanel buttonPanel = new JPanel();  // create a new JPanel for the button
+            buttonPanel.setLayout(new FlowLayout()); // FlowLayout centers the button
+            buttonPanel.add(cancelButton); // add the button to the new JPanel
+
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            panel.add(Box.createRigidArea(new Dimension(0, 5))); // Creates a vertical gap of 5 pixels
+            panel.add(messageLabel);
+            panel.add(Box.createRigidArea(new Dimension(0, 10))); // Creates a vertical gap of 10 pixels
+            panel.add(progressBar);
+            panel.add(Box.createRigidArea(new Dimension(0, 5))); // Creates a vertical gap of 5 pixels
+            panel.add(buttonPanel); // add the buttonPanel instead of the button directly
+
+            getContentPane().add(panel);
+            setSize(350, 130);
+            setLocationRelativeTo(null);
+            setModal(true);
+            setTitle("Waiting");
+        }
+
+        public void setMessage(String message) {
+            messageLabel.setText(message);
+        }
+
+        public boolean isCanceled() {
+            return isCanceled;
+        }
+    }
 }

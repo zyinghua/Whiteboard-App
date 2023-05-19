@@ -119,8 +119,6 @@ public class WhiteboardGUI extends JFrame{
                                 .addComponent(rightPanel)
                         )
                         .addGap(10, 10, 15)
-
-
         );
     }
 
