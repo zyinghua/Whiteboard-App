@@ -1,8 +1,6 @@
 // Author: Yinghua Zhou
 // Student ID: 1308266
 
-package CreateWhiteboard;
-
 import WhiteboardUser.WhiteboardGUI;
 import WhiteboardUser.WhiteboardManager;
 import interfaces.WhiteboardServerRemote;
@@ -26,7 +24,15 @@ public class CreateWhiteboard {
             String username = args[1];
 
             if (port < 0 || port > 65535) {
-                throw new IllegalArgumentException();
+                System.out.println(USAGE);
+                System.err.println("[Server failed to start] Port must be between 0 and 65535.\n");
+                System.exit(1);
+            }
+
+            if (username.isEmpty()) {
+                System.out.println(USAGE);
+                System.err.println("Username cannot be empty.\n");
+                System.exit(1);
             }
 
             WhiteboardManager manager = new WhiteboardManager("[Manager] " + username);
@@ -44,15 +50,11 @@ public class CreateWhiteboard {
             System.out.println(USAGE);
             System.out.println("[Server failed to start] Port must be an integer.\n");
             System.exit(1);
-        } catch (IllegalArgumentException e) {
-            System.out.println(USAGE);
-            System.err.println("[Server failed to start] Port must be between 0 and 65535.\n" + e.getMessage());
-            System.exit(1);
         } catch (RemoteException e){
-            System.err.println("[Server failed to start] Port already in use.\n" + e.getMessage());
+            System.err.println("[Server failed to start] Port already in use.\n");
             System.exit(1);
         }catch (AlreadyBoundException e){
-            System.err.println("[Server failed to start] The board object binding name already in the RMI Registry.\n" + e.getMessage());
+            System.err.println("[Server failed to start] The board object binding name already in the RMI Registry.\n");
             System.exit(1);
         }
     }

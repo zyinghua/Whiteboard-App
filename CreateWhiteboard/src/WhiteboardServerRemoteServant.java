@@ -1,5 +1,3 @@
-package CreateWhiteboard;
-
 import WhiteboardUser.WhiteboardManager;
 import interfaces.WhiteboardServerRemote;
 
