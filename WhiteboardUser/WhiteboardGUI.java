@@ -348,7 +348,7 @@ public class WhiteboardGUI extends JFrame{
                         max, //max
                         1); //step
                 JSpinner spinner = new JSpinner(model);
-                int result = JOptionPane.showOptionDialog(null, spinner, "Enter a number between " + min + " and " + max + " inclusively", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+                int result = JOptionPane.showOptionDialog(null, spinner, "Enter a number between " + min + " and " + max, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
                 if (result == JOptionPane.OK_OPTION) {
                     boardPanel.setGraphicsFontSize((int) spinner.getValue());
                 }
@@ -389,7 +389,7 @@ public class WhiteboardGUI extends JFrame{
                         max, //max
                         1); //step
                 JSpinner spinner = new JSpinner(model);
-                int result = JOptionPane.showOptionDialog(null, spinner, "Enter a number between " + min + " and " + max + " inclusively", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
+                int result = JOptionPane.showOptionDialog(null, spinner, "Enter a number between " + min + " and " + max, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
                 if (result == JOptionPane.OK_OPTION) {
                     boardPanel.setStrokeWidth((int) spinner.getValue());
                 }
