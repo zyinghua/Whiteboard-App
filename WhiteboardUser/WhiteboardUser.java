@@ -3,6 +3,7 @@
 
 package WhiteboardUser;
 import javax.swing.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 
 public class WhiteboardUser {
@@ -10,7 +11,7 @@ public class WhiteboardUser {
     private String username;
     private File specifiedFilePath;
     private BoardPanel boardPanel;
-    private DefaultListModel<String> chatMsgListModel;
+    private DefaultListModel<String> chatListModel;
     private DefaultListModel<String> currUserListModel;
 
     public WhiteboardUser(boolean isManager, String username) {
@@ -18,7 +19,7 @@ public class WhiteboardUser {
         this.username = username;
         this.specifiedFilePath = null;
         this.boardPanel = new BoardPanel();
-        this.chatMsgListModel = new DefaultListModel<>();
+        this.chatListModel = new DefaultListModel<>();
         this.currUserListModel = new DefaultListModel<>();
     }
 
@@ -38,20 +39,28 @@ public class WhiteboardUser {
         this.specifiedFilePath = specifiedFilePath;
     }
 
-    public DefaultListModel<String> getChatMsgListModel() {
-        return chatMsgListModel;
+    public DefaultListModel<String> getChatListModel() {
+        return chatListModel;
+    }
+
+    public void setChatListModel(DefaultListModel<String> chatListModel) {
+        this.chatListModel = chatListModel;
     }
 
     public void addChatMessage(String username, String message) {
-        this.chatMsgListModel.addElement(username + ": " + message);
+        this.chatListModel.addElement(username + ": " + message);
     }
 
     public void addChatMessage(String message) {
-        this.chatMsgListModel.addElement(this.username + "(You) : " + message);
+        this.chatListModel.addElement(this.username + "(You) : " + message);
     }
 
     public DefaultListModel<String> getCurrUserListModel() {
         return currUserListModel;
+    }
+
+    public void setCurrUserListModel(DefaultListModel<String> currUserListModel) {
+        this.currUserListModel = currUserListModel;
     }
 
     public void addUser(String username) {
@@ -62,11 +71,15 @@ public class WhiteboardUser {
         return boardPanel;
     }
 
-    public void setBoardPanel(BoardPanel boardPanel) {
-        this.boardPanel = boardPanel;
+    public void setBoardImage(BufferedImage boardImage) {
+        this.boardPanel.setBoardImage(boardImage);
     }
 
-    public void sendMessage(String message) {
+    public String getUsername() {
+        return username;
+    }
 
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
