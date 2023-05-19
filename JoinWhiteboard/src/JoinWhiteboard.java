@@ -6,14 +6,51 @@ import WhiteboardUser.WhiteboardClient;
 import interfaces.WhiteboardServerRemote;
 
 import Utils.Utils;
+
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class JoinWhiteboard {
     public static final String USAGE = "Usage: java -jar JoinWhiteboard.jar <Server IP Address> <port> <username>";
+
+    private static WhiteboardClient getWhiteboardChannelInfo(String username, WhiteboardServerRemote board_remote) {
+        WhiteboardClient client;
+
+        try {
+            DefaultListModel<String> currUserListModel = board_remote.getCurrUserListModel();
+            DefaultListModel<String> chatListModel = board_remote.getChatListModel();
+
+            byte[] boardImageInBytes = board_remote.getWhiteboardImageInBytes();
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(boardImageInBytes);
+            BufferedImage boardImage = ImageIO.read(inputStream);
+
+            client = new WhiteboardClient(username, currUserListModel, chatListModel, boardImage);
+
+        } catch (RemoteException e) {
+            String err_msg = "Something wrong with getting the whiteboard information from the server, please try again later.";
+            JOptionPane.showMessageDialog(null, err_msg, "Error", JOptionPane.ERROR_MESSAGE);
+            System.out.println("Error with getting the whiteboard information: " + e.getMessage());
+            System.out.println(err_msg);
+            System.exit(1);
+            return null;
+        } catch (IOException e) {
+            // byte[] board image parse error
+            String err_msg = "Something wrong with getting the whiteboard information from the server, please try again later.";
+            JOptionPane.showMessageDialog(null, err_msg, "Error", JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+            return null;
+        }
+
+        return client;
+    }
+
     public static void main(String[] args) {
         if (args.length != 3) {
             System.out.println("Invalid parameters. " + USAGE);
@@ -47,10 +84,10 @@ public class JoinWhiteboard {
                 new Thread(waitingDialog::dispose).start();
 
                 if (access) {
-                    System.out.println("Joined whiteboard on IP Address: " + address + " | Port No.: " + port + " with username: " + username + ".\n");
-                    WhiteboardClient client = new WhiteboardClient(username);
+                    WhiteboardClient client = getWhiteboardChannelInfo(username, board_remote);
                     WhiteboardGUI board = new WhiteboardGUI(client);
                     board.setVisible(true);
+                    System.out.println("Joined whiteboard on IP Address: " + address + " | Port No.: " + port + " with username: " + username + ".\n");
                 } else {
                     JOptionPane.showMessageDialog(null, "Join access denied by the whiteboard manager.", "Error", JOptionPane.ERROR_MESSAGE);
                     System.out.println("Join access denied by the whiteboard manager from IP Address: " + address + " | Port No.: " + port + ". Attempted to join with username: " + username + ".\n");
