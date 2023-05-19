@@ -1,5 +1,3 @@
-package JoinWhiteboard;
-
 import WhiteboardUser.WhiteboardClient;
 import interfaces.WhiteboardClientRemote;
 
