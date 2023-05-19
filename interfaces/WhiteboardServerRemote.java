@@ -2,5 +2,5 @@ package interfaces;
 
 import java.rmi.Remote;
 
-public interface IRemoteBoard extends Remote {
+public interface WhiteboardServerRemote extends Remote {
 }

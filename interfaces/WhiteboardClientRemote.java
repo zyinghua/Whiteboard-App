@@ -1,2 +1,6 @@
-package interfaces;public interface WhiteboardClientRemote {
+package interfaces;
+
+import java.rmi.Remote;
+
+public interface WhiteboardClientRemote extends Remote {
 }
