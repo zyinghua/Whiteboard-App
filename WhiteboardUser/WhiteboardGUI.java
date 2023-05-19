@@ -63,6 +63,7 @@ public class WhiteboardGUI extends JFrame{
     private void initComponents() {
         initGUIComponents();
         initFundamentalComponents();
+        setSize(new Dimension(Utils.BOARD_WIDTH, Utils.BOARD_HEIGHT));
 
         // Set the close board action
         addWindowListener(new WindowAdapter() {
@@ -652,7 +653,6 @@ public class WhiteboardGUI extends JFrame{
 
     public static void main(String[] args) {
         WhiteboardGUI board = new WhiteboardGUI(new WhiteboardUser(true, "manager"));
-        board.setSize(new Dimension(Utils.BOARD_WIDTH, Utils.BOARD_HEIGHT));
         board.setVisible(true);
     }
 }

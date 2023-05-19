@@ -6,6 +6,7 @@ package Utils;
 import java.awt.*;
 
 public class Utils {
+    public static final String RMI_WHITEBOARD_SERVER_NAME = "WhiteBoard";
     public static final String BOARD_SAVE_DEFAULT_PATH = "whiteboard.png";
     public static final Color BOARD_BACKGROUND_COLOR = Color.WHITE;
     public static final int BOARD_WIDTH = 1300;
