@@ -1,3 +1,6 @@
+// Author: Yinghua Zhou
+// Student ID: 1308266
+
 import WhiteboardUser.WhiteboardManager;
 import interfaces.WhiteboardServerRemote;
 
@@ -19,6 +22,6 @@ public class WhiteboardServerRemoteServant extends UnicastRemoteObject implement
 
     @Override
     public boolean joinWhiteboard(String username) throws RemoteException {
-        return false;
+        return true;
     }
 }

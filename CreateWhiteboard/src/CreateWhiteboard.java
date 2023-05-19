@@ -29,12 +29,6 @@ public class CreateWhiteboard {
                 System.exit(1);
             }
 
-            if (username.isEmpty()) {
-                System.out.println(USAGE);
-                System.err.println("Username cannot be empty.\n");
-                System.exit(1);
-            }
-
             WhiteboardManager manager = new WhiteboardManager("[Manager] " + username);
 
             Registry registry = LocateRegistry.createRegistry(port);
