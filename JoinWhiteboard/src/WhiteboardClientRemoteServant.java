@@ -1,3 +1,6 @@
+// Author: Yinghua Zhou
+// Student ID: 1308266
+
 import WhiteboardUser.WhiteboardClient;
 import interfaces.WhiteboardClientRemote;
 
