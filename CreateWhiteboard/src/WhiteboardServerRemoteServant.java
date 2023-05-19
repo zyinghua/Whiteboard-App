@@ -4,6 +4,9 @@
 import WhiteboardUser.WhiteboardManager;
 import interfaces.WhiteboardServerRemote;
 
+import javax.swing.*;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
@@ -23,5 +26,20 @@ public class WhiteboardServerRemoteServant extends UnicastRemoteObject implement
     @Override
     public boolean joinWhiteboard(String username) throws RemoteException {
         return manager.joinWhiteboard(username);
+    }
+
+    @Override
+    public DefaultListModel<String> getCurrUserListModel() throws RemoteException {
+        return manager.getCurrUserListModel();
+    }
+
+    @Override
+    public DefaultListModel<String> getChatListModel() throws RemoteException {
+        return manager.getChatListModel();
+    }
+
+    @Override
+    public byte[] getWhiteboardImageInBytes() throws IOException {
+        return manager.getBoardPanel().getBoardImagesInBytes();
     }
 }
