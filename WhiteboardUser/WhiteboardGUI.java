@@ -28,7 +28,6 @@ public class WhiteboardGUI extends JFrame{
     private JMenuItem font_size_button;
     private JMenu cursorMenu;
     private JRadioButtonMenuItem cursorButton;
-    private BoardPanel boardPanel;
     private JLabel chatLabel;
     private JList<String> chatList;
     private JScrollPane chatBoxScrollPane;
@@ -102,7 +101,7 @@ public class WhiteboardGUI extends JFrame{
         layout.setHorizontalGroup(
                 layout.createSequentialGroup()
                         .addGap(10)
-                        .addComponent(boardPanel)
+                        .addComponent(user.getBoardPanel())
                         .addGap(15)
                         .addComponent(rightPanel)
                         .addGap(10)
@@ -111,7 +110,7 @@ public class WhiteboardGUI extends JFrame{
                 layout.createSequentialGroup()
                         .addGap(10, 10, 15)
                         .addGroup(layout.createParallelGroup()
-                                .addComponent(boardPanel)
+                                .addComponent(user.getBoardPanel())
                                 .addComponent(rightPanel)
                         )
                         .addGap(10, 10, 15)
@@ -180,7 +179,7 @@ public class WhiteboardGUI extends JFrame{
     private void handleFileNew() {
         int result = JOptionPane.showConfirmDialog(this, Utils.NEW_BOARD_WARNING, "New Board", JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
-            boardPanel.clearBoard();
+            user.getBoardPanel().clearBoard();
         }
     }
 
@@ -189,7 +188,7 @@ public class WhiteboardGUI extends JFrame{
             handleFileSaveAs();
         } else {
             try {
-                ImageIO.write(boardPanel.getBoardImage(), "png", user.getSpecifiedFilePath());
+                ImageIO.write(user.getBoardPanel().getBoardImage(), "png", user.getSpecifiedFilePath());
                 JOptionPane.showMessageDialog(this, "Image saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this, "Save failed, an error occurred, please try again.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -214,7 +213,7 @@ public class WhiteboardGUI extends JFrame{
                 }
 
                 user.setSpecifiedFilePath(selectedFile);
-                ImageIO.write(boardPanel.getBoardImage(), "png", selectedFile);
+                ImageIO.write(user.getBoardPanel().getBoardImage(), "png", selectedFile);
                 JOptionPane.showMessageDialog(this, "Image saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this, "Save failed, an error occurred, please try again.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -238,8 +237,8 @@ public class WhiteboardGUI extends JFrame{
                 if (!selectedFile.getName().toLowerCase().endsWith(".png")) {
                     JOptionPane.showMessageDialog(this, "Please select a file with a suffix of '.png', only a png file is accepted.", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    Image image = ImageIO.read(selectedFile).getScaledInstance(boardPanel.getSize().width, boardPanel.getSize().height, Image.SCALE_SMOOTH);;
-                    boardPanel.setBoard(image);
+                    Image image = ImageIO.read(selectedFile).getScaledInstance(user.getBoardPanel().getSize().width, user.getBoardPanel().getSize().height, Image.SCALE_SMOOTH);;
+                    user.getBoardPanel().setBoard(image);
                 }
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this, "Save failed, an error occurred, please try again.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -260,7 +259,7 @@ public class WhiteboardGUI extends JFrame{
         drawLine.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_LINE))));
         drawLine.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                boardPanel.setCurrentMode(Utils.MODE_DRAW_LINE);
+                user.getBoardPanel().setCurrentMode(Utils.MODE_DRAW_LINE);
             }
         });
 
@@ -269,7 +268,7 @@ public class WhiteboardGUI extends JFrame{
         drawRect.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_RECTANGLE))));
         drawRect.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                boardPanel.setCurrentMode(Utils.MODE_DRAW_RECT);
+                user.getBoardPanel().setCurrentMode(Utils.MODE_DRAW_RECT);
             }
         });
 
@@ -278,7 +277,7 @@ public class WhiteboardGUI extends JFrame{
         drawOval.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_OVAL))));
         drawOval.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                boardPanel.setCurrentMode(Utils.MODE_DRAW_OVAL);
+                user.getBoardPanel().setCurrentMode(Utils.MODE_DRAW_OVAL);
             }
         });
 
@@ -287,7 +286,7 @@ public class WhiteboardGUI extends JFrame{
         drawCir.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_CIRCLE))));
         drawCir.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                boardPanel.setCurrentMode(Utils.MODE_DRAW_CIRCLE);
+                user.getBoardPanel().setCurrentMode(Utils.MODE_DRAW_CIRCLE);
             }
         });
 
@@ -313,7 +312,7 @@ public class WhiteboardGUI extends JFrame{
                 Color color = JColorChooser.showDialog(null, "Please select a color", Color.BLACK);
                 colorIcon.setColor(color);
                 colorSelector.repaint();
-                boardPanel.setCurrColor(color);
+                user.getBoardPanel().setCurrColor(color);
             }
         });
 
@@ -329,7 +328,7 @@ public class WhiteboardGUI extends JFrame{
         paintText.setText("Paint Text");
         paintText.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                boardPanel.setCurrentMode(Utils.MODE_PAINT_TEXT);
+                user.getBoardPanel().setCurrentMode(Utils.MODE_PAINT_TEXT);
             }
         });
 
@@ -343,14 +342,14 @@ public class WhiteboardGUI extends JFrame{
                 int min = 6;
                 int max = 128;
 
-                SpinnerNumberModel model = new SpinnerNumberModel(boardPanel.getGraphicsFontSize(), //initial value
+                SpinnerNumberModel model = new SpinnerNumberModel(user.getBoardPanel().getGraphicsFontSize(), //initial value
                         min, //min
                         max, //max
                         1); //step
                 JSpinner spinner = new JSpinner(model);
                 int result = JOptionPane.showOptionDialog(null, spinner, "Enter a number between " + min + " and " + max, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
                 if (result == JOptionPane.OK_OPTION) {
-                    boardPanel.setGraphicsFontSize((int) spinner.getValue());
+                    user.getBoardPanel().setGraphicsFontSize((int) spinner.getValue());
                 }
             }
         });
@@ -370,7 +369,7 @@ public class WhiteboardGUI extends JFrame{
         freeDrawButton.setText("Pen");
         freeDrawButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                boardPanel.setCurrentMode(Utils.MODE_FREE_DRAW);
+                user.getBoardPanel().setCurrentMode(Utils.MODE_FREE_DRAW);
             }
         });
 
@@ -384,14 +383,14 @@ public class WhiteboardGUI extends JFrame{
                 int min = 1;
                 int max = 20;
 
-                SpinnerNumberModel model = new SpinnerNumberModel(boardPanel.getStrokeWidth(), //initial value
+                SpinnerNumberModel model = new SpinnerNumberModel(user.getBoardPanel().getStrokeWidth(), //initial value
                         min, //min
                         max, //max
                         1); //step
                 JSpinner spinner = new JSpinner(model);
                 int result = JOptionPane.showOptionDialog(null, spinner, "Enter a number between " + min + " and " + max, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, null);
                 if (result == JOptionPane.OK_OPTION) {
-                    boardPanel.setStrokeWidth((int) spinner.getValue());
+                    user.getBoardPanel().setStrokeWidth((int) spinner.getValue());
                 }
             }
         });
@@ -410,7 +409,7 @@ public class WhiteboardGUI extends JFrame{
         cursorButton.setIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource(Utils.ICON_CURSOR))));
         cursorButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                boardPanel.setCurrentMode(Utils.MODE_DEFAULT_CURSOR);
+                user.getBoardPanel().setCurrentMode(Utils.MODE_DEFAULT_CURSOR);
             }
         });
 
@@ -420,7 +419,7 @@ public class WhiteboardGUI extends JFrame{
     }
 
     private void setUpBoardPanel() {
-        boardPanel.setPreferredSize(new Dimension((int) (Utils.BOARD_WIDTH * 0.7), Utils.BOARD_HEIGHT));
+        user.getBoardPanel().setPreferredSize(new Dimension((int) (Utils.BOARD_WIDTH * 0.7), Utils.BOARD_HEIGHT));
     }
 
     private void setUpInputPanel() {
@@ -549,7 +548,6 @@ public class WhiteboardGUI extends JFrame{
 
     public void initGUIComponents(){
         this.toolBtnGroup = new ButtonGroup();
-        this.boardPanel = new BoardPanel();
         this.inputScrollPane = new JScrollPane();
         this.inputArea = new HintTextArea("Type message here...");
         this.inputPanel = new JPanel();

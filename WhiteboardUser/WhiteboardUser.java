@@ -1,15 +1,12 @@
 package WhiteboardUser;
 import javax.swing.*;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
-
-import interfaces.IRemoteBoard;
 
 public class WhiteboardUser {
     private boolean isManager;
     private String username;
     private File specifiedFilePath;
+    private BoardPanel boardPanel;
     private DefaultListModel<String> chatMsgListModel;
     private DefaultListModel<String> currUserListModel;
 
@@ -17,6 +14,7 @@ public class WhiteboardUser {
         this.isManager = isManager;
         this.username = username;
         this.specifiedFilePath = null;
+        this.boardPanel = new BoardPanel();
         this.chatMsgListModel = new DefaultListModel<>();
         this.currUserListModel = new DefaultListModel<>();
     }
@@ -55,6 +53,14 @@ public class WhiteboardUser {
 
     public void addUser(String username) {
         this.currUserListModel.addElement(username);
+    }
+
+    public BoardPanel getBoardPanel() {
+        return boardPanel;
+    }
+
+    public void setBoardPanel(BoardPanel boardPanel) {
+        this.boardPanel = boardPanel;
     }
 
     public void sendMessage(String message) {
