@@ -434,11 +434,10 @@ public class WhiteboardGUI extends JFrame{
         sendButton.setText("Send");
         sendButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String message = inputArea.getText();
-
-                if (!message.isEmpty()) {
-                    inputArea.setText("");
+                if (!inputArea.isEmpty()) {
+                    String message = inputArea.getText();
                     user.addChatMessage(message);
+                    inputArea.setText("");
                 }
             }
         });
@@ -646,6 +645,10 @@ public class WhiteboardGUI extends JFrame{
             this.hint = hint;
             setForeground(Color.gray);
             setText(hint);
+        }
+
+        public boolean isEmpty() {
+            return getText().isEmpty() || getForeground() == Color.gray;
         }
     }
 
