@@ -1,3 +1,6 @@
+// Author: Yinghua Zhou
+// Student ID: 1308266
+
 package WhiteboardUser;
 
 import javax.imageio.ImageIO;
@@ -52,7 +55,8 @@ public class WhiteboardGUI extends JFrame{
     private JButton sendButton;
 
 
-    public WhiteboardGUI() {
+    public WhiteboardGUI(WhiteboardUser user) {
+        this.user = user;
         initComponents();
     }
 
@@ -582,7 +586,6 @@ public class WhiteboardGUI extends JFrame{
         this.cursorButton = new JRadioButtonMenuItem();
         this.pen_stroke_width_button = new JMenuItem();
         this.font_size_button = new JMenuItem();
-        this.user = new WhiteboardUser(true, "manager");
     }
 
     private static class ColorIcon implements Icon {
@@ -648,7 +651,7 @@ public class WhiteboardGUI extends JFrame{
     }
 
     public static void main(String[] args) {
-        WhiteboardGUI board = new WhiteboardGUI();
+        WhiteboardGUI board = new WhiteboardGUI(new WhiteboardUser(true, "manager"));
         board.setSize(new Dimension(Utils.BOARD_WIDTH, Utils.BOARD_HEIGHT));
         board.setVisible(true);
     }

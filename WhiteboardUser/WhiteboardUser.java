@@ -1,3 +1,6 @@
+// Author: Yinghua Zhou
+// Student ID: 1308266
+
 package WhiteboardUser;
 import javax.swing.*;
 import java.io.File;

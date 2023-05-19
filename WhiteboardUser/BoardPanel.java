@@ -1,3 +1,6 @@
+// Author: Yinghua Zhou
+// Student ID: 1308266
+
 package WhiteboardUser;
 
 import Utils.Utils;
@@ -36,7 +39,6 @@ public class BoardPanel extends JPanel {
                             || getCurrentMode() == Utils.MODE_DRAW_RECT
                             || getCurrentMode() == Utils.MODE_DRAW_OVAL
                             || getCurrentMode() == Utils.MODE_DRAW_CIRCLE){
-
 
                         graphics2D.setXORMode(Color.WHITE);
                         draw();
