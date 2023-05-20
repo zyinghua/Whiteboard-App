@@ -20,7 +20,17 @@ public class WhiteboardUserRemoteServant extends UnicastRemoteObject implements 
     }
 
     @Override
-    public void addNewUser(String username) throws RemoteException {
+    public void addNewUser(String username, WhiteboardUserRemote userRemote) throws RemoteException {
+        user.addPeerInfo(username, userRemote);
+    }
 
+    @Override
+    public void removeUserInfo(String username) throws RemoteException {
+        user.removePeerInfo(username);
+    }
+
+    @Override
+    public void disconnectByManager(boolean isKickedOut) throws RemoteException {
+        user.disconnectByManager(isKickedOut);
     }
 }
