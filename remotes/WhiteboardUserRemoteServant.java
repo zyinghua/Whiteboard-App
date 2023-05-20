@@ -3,6 +3,7 @@ package remotes;// Author: Yinghua Zhou
 
 import WhiteboardUser.WhiteboardUser;
 
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
@@ -37,5 +38,10 @@ public class WhiteboardUserRemoteServant extends UnicastRemoteObject implements 
     @Override
     public void newBoard() throws RemoteException {
         user.getBoardPanel().clearBoard();
+    }
+
+    @Override
+    public void loadBoard(byte[] boardImageInBytes) throws IOException {
+        user.getBoardPanel().setBoardImageFromBytes(boardImageInBytes);
     }
 }

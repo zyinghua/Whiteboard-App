@@ -3,6 +3,7 @@
 
 package remotes;
 
+import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
@@ -12,4 +13,5 @@ public interface WhiteboardUserRemote extends Remote {
     void removeUserInfo(String username) throws RemoteException;
     void disconnectByManager(boolean isKickedOut) throws RemoteException;
     void newBoard() throws RemoteException;
+    void loadBoard(byte[] boardImageInBytes) throws IOException;
 }
