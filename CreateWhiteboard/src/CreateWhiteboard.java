@@ -3,6 +3,8 @@
 
 import WhiteboardUser.WhiteboardGUI;
 import WhiteboardUser.WhiteboardManager;
+import remotes.WhiteboardUserRemote;
+import remotes.WhiteboardUserRemoteServant;
 import remotes.WhiteboardServerRemote;
 
 import java.rmi.AlreadyBoundException;
@@ -24,7 +26,7 @@ public class CreateWhiteboard {
 
         try {
             int port = Integer.parseInt(args[0]);
-            String username = args[1];
+            String username = "[Manager] " + args[1];
 
             if (port < 0 || port > 65535) {
                 System.out.println(USAGE);
@@ -32,7 +34,10 @@ public class CreateWhiteboard {
                 System.exit(1);
             }
 
-            WhiteboardManager manager = new WhiteboardManager("[Manager] " + username);
+            WhiteboardManager manager = new WhiteboardManager(username);
+
+            WhiteboardUserRemote userRemote = new WhiteboardUserRemoteServant(manager);
+            manager.addPeerInfo(username, userRemote);
 
             Registry registry = LocateRegistry.createRegistry(port);
             WhiteboardServerRemote board_remote = new WhiteboardServerRemoteServant(manager);  // encapsulate with the remote for RMI remote access
