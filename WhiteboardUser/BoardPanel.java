@@ -39,6 +39,7 @@ public class BoardPanel extends JPanel {
                 if(graphics2D != null)
                 {
                     if (getCurrentMode() == Utils.MODE_FREE_DRAW) {
+                        graphics2D.setPaintMode(); // XOR free
                         updateEndPt(e);
                         draw();
                         updateStartPt(e);
@@ -63,9 +64,11 @@ public class BoardPanel extends JPanel {
                 updateStartPt(e);
             }
             public void mouseReleased(MouseEvent e) {
-                graphics2D.setPaintMode();
-                updateEndPt(e);
-                draw();
+                if(currentMode == Utils.MODE_PAINT_TEXT) {
+                    updateEndPt(e);
+                    draw();
+                }
+
                 resetPts();
             }
         });
@@ -132,11 +135,6 @@ public class BoardPanel extends JPanel {
 
     private void updateEndPt(MouseEvent e) {
         mouseEndPt = e.getPoint();
-    }
-
-    private void updateBothPts(MouseEvent e) {
-        updateStartPt(e);
-        updateEndPt(e);
     }
 
     private Point getShapeStartPt() {
