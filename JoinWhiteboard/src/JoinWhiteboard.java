@@ -84,7 +84,10 @@ public class JoinWhiteboard {
             Registry registry = LocateRegistry.getRegistry(address, port); // Get the registry
             WhiteboardServerRemote board_remote = (WhiteboardServerRemote) registry.lookup(Utils.RMI_WHITEBOARD_SERVER_NAME); // Get the remote object and use as if it's local
 
-            Future<Integer> future = executor.submit(() -> board_remote.joinWhiteboard(username)); // Submit the task to the executor
+            WhiteboardClient client = new WhiteboardClient(username, board_remote);
+            WhiteboardClientRemoteServant client_remote = new WhiteboardClientRemoteServant(client); // encapsulate with the remote
+
+            Future<Integer> future = executor.submit(() -> board_remote.joinWhiteboard(username, client_remote)); // Submit the task to the executor
 
             WaitingDialog waitingDialog = new WaitingDialog("Please wait for the manager to grant access...", future);
             new Thread(() -> {
@@ -97,7 +100,6 @@ public class JoinWhiteboard {
             new Thread(waitingDialog::dispose).start();
 
             if (access == ServerCode.JOIN_ACCEPTED) {
-                WhiteboardClient client = new WhiteboardClient(username, board_remote);
                 WhiteboardGUI board = new WhiteboardGUI(client);
                 board.setVisible(true);
                 System.out.println("Joined whiteboard on IP Address: " + address + " | Port No.: " + port + " with username: " + username + ".\n");
