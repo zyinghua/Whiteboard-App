@@ -4,17 +4,16 @@ import Utils.ServerCode;
 import remotes.WhiteboardUserRemote;
 
 import javax.swing.*;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class WhiteboardManager extends WhiteboardUser{
     private ArrayList<String> waitingClients;
-
     private HashMap<String, JOptionPane> waitingClientDialogs;
 
     public WhiteboardManager(String username){
         super(true, username);
-        addUser(username);
         waitingClients = new ArrayList<>();
     }
 
@@ -30,8 +29,20 @@ public class WhiteboardManager extends WhiteboardUser{
         removeWaitingClient(username);
 
         if(option == JOptionPane.YES_OPTION){
-            addUser(username);
-            addClientRemote(username, clientRemote);
+            for (String existingUsernames : getClientRemotes().keySet()) {
+                if (!existingUsernames.equals(getUsername())) {
+                    new Thread(() -> {
+                        try {
+                            getClientRemotes().get(existingUsernames).addNewUser(username, clientRemote);
+                        } catch (RemoteException e) {
+                            JOptionPane.showMessageDialog(null, "Something wrong with the remote connection to " + username + ". User removed.", "Error", JOptionPane.ERROR_MESSAGE);
+                            // kick the user
+                        }
+                    }).start();
+                }
+            }
+
+            addPeerInfo(username, clientRemote);
 
             return ServerCode.JOIN_ACCEPTED;
         }
