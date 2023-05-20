@@ -6,6 +6,7 @@ import WhiteboardUser.WhiteboardClient;
 import interfaces.WhiteboardServerRemote;
 
 import Utils.Utils;
+import Utils.ServerCode;
 
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -71,31 +72,30 @@ public class JoinWhiteboard {
             Registry registry = LocateRegistry.getRegistry(address, port);
             WhiteboardServerRemote board_remote = (WhiteboardServerRemote) registry.lookup(Utils.RMI_WHITEBOARD_SERVER_NAME); // Get the remote object and use as if it's local
 
-            if(board_remote.checkNameValidity(username))
-            {
-                Utils.WaitingDialog waitingDialog = new Utils.WaitingDialog("Please wait for the manager to grant access...");
+            Utils.WaitingDialog waitingDialog = new Utils.WaitingDialog("Please wait for the manager to grant access...");
+            new Thread(() -> {
+                waitingDialog.setVisible(true);
+            }).start();
 
-                new Thread(() -> {
-                    waitingDialog.setVisible(true);
-                }).start();
+            int access = board_remote.joinWhiteboard(username);
 
-                boolean access = board_remote.joinWhiteboard(username);
+            new Thread(waitingDialog::dispose).start();
 
-                new Thread(waitingDialog::dispose).start();
-
-                if (access) {
-                    WhiteboardClient client = getWhiteboardChannelInfo(username, board_remote);
-                    WhiteboardGUI board = new WhiteboardGUI(client);
-                    board.setVisible(true);
-                    System.out.println("Joined whiteboard on IP Address: " + address + " | Port No.: " + port + " with username: " + username + ".\n");
-                } else {
-                    JOptionPane.showMessageDialog(null, "Join access denied by the whiteboard manager.", "Error", JOptionPane.ERROR_MESSAGE);
-                    System.out.println("Join access denied by the whiteboard manager from IP Address: " + address + " | Port No.: " + port + ". Attempted to join with username: " + username + ".\n");
-                    System.exit(1);
-                }
-            } else {
+            if (access == ServerCode.JOIN_ACCEPTED) {
+                WhiteboardClient client = getWhiteboardChannelInfo(username, board_remote);
+                WhiteboardGUI board = new WhiteboardGUI(client);
+                board.setVisible(true);
+                System.out.println("Joined whiteboard on IP Address: " + address + " | Port No.: " + port + " with username: " + username + ".\n");
+            } else if (access == ServerCode.JOIN_DENIED_USERNAME_ALREADY_EXISTS) {
                 JOptionPane.showMessageDialog(null, "Username already exists, please try another one.", "Error", JOptionPane.ERROR_MESSAGE);
                 System.out.println("Username already exists, please try another one.\n");
+                System.exit(1);
+            } else if (access == ServerCode.JOIN_DENIED_BY_MANAGER) {
+                JOptionPane.showMessageDialog(null, "Join access denied by the whiteboard manager.", "Error", JOptionPane.ERROR_MESSAGE);
+                System.out.println("Join access denied by the whiteboard manager from IP Address: " + address + " | Port No.: " + port + ". Attempted to join with username: " + username + ".\n");
+                System.exit(1);
+            } else {
+                // should never be reached
                 System.exit(1);
             }
 

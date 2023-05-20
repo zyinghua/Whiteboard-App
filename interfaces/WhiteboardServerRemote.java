@@ -10,8 +10,7 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface WhiteboardServerRemote extends Remote {
-    boolean checkNameValidity(String username) throws RemoteException;
-    boolean joinWhiteboard(String username) throws RemoteException;
+    int joinWhiteboard(String username) throws RemoteException;
     DefaultListModel<String> getCurrUserListModel() throws RemoteException;
     DefaultListModel<String> getChatListModel() throws RemoteException;
     byte[] getWhiteboardImageInBytes() throws IOException;

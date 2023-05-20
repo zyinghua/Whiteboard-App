@@ -8,12 +8,11 @@ import java.awt.*;
 
 public class Utils {
     public static final String RMI_WHITEBOARD_SERVER_NAME = "WhiteBoard";
-    public static final String BOARD_SAVE_DEFAULT_PATH = "whiteboard.png";
     public static final Color BOARD_BACKGROUND_COLOR = Color.WHITE;
     public static final int BOARD_WIDTH = 1300;
     public static final int BOARD_HEIGHT = 800;
     public static final int BOARD_MENU_BAR_HEIGHT = 35;
-    public static final String BOARD_CLOSE_MANAGER = "You are the manager, closing the board will terminate the program and force all clients to exit, do you want to continue?";
+    public static final String BOARD_CLOSE_MANAGER = "You are the manager, closing the board will terminate the program and force all clients to exit, do you want to continue? (Please make sure to save the board if needed)";
     public static final String BOARD_CLOSE_CLIENT = "Are you sure to exit the board?";
     public static final String ICON_PATH = "/icons/";
     public static final String ICON_FILE = ICON_PATH + "file.png";
