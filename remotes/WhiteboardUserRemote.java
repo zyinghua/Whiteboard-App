@@ -11,4 +11,5 @@ public interface WhiteboardUserRemote extends Remote {
     void addNewUser(String username, WhiteboardUserRemote userRemote) throws RemoteException;
     void removeUserInfo(String username) throws RemoteException;
     void disconnectByManager(boolean isKickedOut) throws RemoteException;
+    void newBoard() throws RemoteException;
 }

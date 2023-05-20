@@ -33,4 +33,9 @@ public class WhiteboardUserRemoteServant extends UnicastRemoteObject implements 
     public void disconnectByManager(boolean isKickedOut) throws RemoteException {
         user.disconnectByManager(isKickedOut);
     }
+
+    @Override
+    public void newBoard() throws RemoteException {
+        user.getBoardPanel().clearBoard();
+    }
 }
