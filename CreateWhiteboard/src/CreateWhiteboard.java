@@ -11,6 +11,8 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import Utils.Utils;
 
+import javax.swing.*;
+
 public class CreateWhiteboard {
     public static final String USAGE = "Usage: java -jar CreateWhiteboard.jar <port> <username>";
     public static void main(String[] args) {
@@ -35,17 +37,19 @@ public class CreateWhiteboard {
             WhiteboardServerRemote board_remote = new WhiteboardServerRemoteServant(manager);
             registry.bind(Utils.RMI_WHITEBOARD_SERVER_NAME, board_remote);
 
-            System.out.println("Whiteboard created on port " + port + " with manager username: " + username + ".\n");
-
             WhiteboardGUI board = new WhiteboardGUI(manager);
             board.setVisible(true);
+
+            System.out.println("Whiteboard created on port " + port + " with manager username: " + username + ".\n");
 
         } catch (NumberFormatException e) {
             System.out.println(USAGE);
             System.out.println("[Server failed to start] Port must be an integer.\n");
             System.exit(1);
         } catch (RemoteException e){
-            System.err.println("[Server failed to start] Port already in use.\n");
+            String err_msg = "[Server failed to start] Port already in use.";
+            JOptionPane.showMessageDialog(null, err_msg, "Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println(err_msg + "\n");
             System.exit(1);
         }catch (AlreadyBoundException e){
             System.err.println("[Server failed to start] The board object binding name already in the RMI Registry.\n");
