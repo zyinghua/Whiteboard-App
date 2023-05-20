@@ -1,13 +1,16 @@
 package WhiteboardUser;
 
-import Utils.Utils;
 import Utils.ServerCode;
+import remotes.WhiteboardUserRemote;
 
 import javax.swing.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class WhiteboardManager extends WhiteboardUser{
     private ArrayList<String> waitingClients;
+
+    private HashMap<String, JOptionPane> waitingClientDialogs;
 
     public WhiteboardManager(String username){
         super(true, username);
@@ -15,7 +18,7 @@ public class WhiteboardManager extends WhiteboardUser{
         waitingClients = new ArrayList<>();
     }
 
-    public int joinWhiteboard(String username){
+    public int joinWhiteboard(String username, WhiteboardUserRemote clientRemote){
         if (getCurrUserListModel().contains(username) || getWaitingClients().contains(username)){
             return ServerCode.JOIN_DENIED_USERNAME_ALREADY_EXISTS;
         }
@@ -26,7 +29,19 @@ public class WhiteboardManager extends WhiteboardUser{
 
         removeWaitingClient(username);
 
-        return option == JOptionPane.YES_OPTION ? ServerCode.JOIN_ACCEPTED : ServerCode.JOIN_DENIED_BY_MANAGER;
+        if(option == JOptionPane.YES_OPTION){
+            addUser(username);
+            addClientRemote(username, clientRemote);
+
+            return ServerCode.JOIN_ACCEPTED;
+        }
+        else{
+            return ServerCode.JOIN_DENIED_BY_MANAGER;
+        }
+    }
+
+    public void cancelJoinWhiteboard(String username){
+        removeWaitingClient(username);
     }
 
     public void addWaitingClient(String username){
