@@ -3,13 +3,14 @@
 
 import WhiteboardUser.WhiteboardGUI;
 import WhiteboardUser.WhiteboardManager;
-import interfaces.WhiteboardServerRemote;
+import remotes.WhiteboardServerRemote;
 
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import Utils.Utils;
+import remotes.WhiteboardServerRemoteServant;
 
 import javax.swing.*;
 
@@ -34,7 +35,7 @@ public class CreateWhiteboard {
             WhiteboardManager manager = new WhiteboardManager("[Manager] " + username);
 
             Registry registry = LocateRegistry.createRegistry(port);
-            WhiteboardServerRemote board_remote = new WhiteboardServerRemoteServant(manager);
+            WhiteboardServerRemote board_remote = new WhiteboardServerRemoteServant(manager);  // encapsulate with the remote for RMI remote access
             registry.bind(Utils.RMI_WHITEBOARD_SERVER_NAME, board_remote);
 
             WhiteboardGUI board = new WhiteboardGUI(manager);

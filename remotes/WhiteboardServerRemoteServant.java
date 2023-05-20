@@ -2,6 +2,7 @@
 // Student ID: 1308266
 
 import WhiteboardUser.WhiteboardManager;
+import interfaces.WhiteboardClientRemote;
 import interfaces.WhiteboardServerRemote;
 
 import javax.swing.*;
@@ -9,6 +10,7 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
 
 public class WhiteboardServerRemoteServant extends UnicastRemoteObject implements WhiteboardServerRemote {
     private WhiteboardManager manager;
@@ -19,8 +21,13 @@ public class WhiteboardServerRemoteServant extends UnicastRemoteObject implement
     }
 
     @Override
-    public int joinWhiteboard(String username) throws RemoteException {
-        return manager.joinWhiteboard(username);
+    public int joinWhiteboard(String username, WhiteboardClientRemote client_remote) throws RemoteException {
+        return manager.joinWhiteboard(username, client_remote);
+    }
+
+    @Override
+    public void cancelJoinWhiteboard(String username) throws RemoteException {
+
     }
 
     @Override
@@ -34,7 +41,17 @@ public class WhiteboardServerRemoteServant extends UnicastRemoteObject implement
     }
 
     @Override
+    public HashMap<String, WhiteboardClientRemote> getClientRemotes() throws RemoteException {
+        return manager.getClientRemotes();
+    }
+
+    @Override
     public byte[] getWhiteboardImageInBytes() throws IOException {
         return manager.getBoardPanel().getBoardImagesInBytes();
+    }
+
+    @Override
+    public void leaveWhiteboard(String username) throws RemoteException {
+
     }
 }

@@ -2,18 +2,18 @@
 // Student ID: 1308266
 
 import WhiteboardUser.WhiteboardClient;
+import WhiteboardUser.WhiteboardUser;
 import interfaces.WhiteboardClientRemote;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
 
 public class WhiteboardClientRemoteServant extends UnicastRemoteObject implements WhiteboardClientRemote {
-    private WhiteboardClient client;
+    private WhiteboardUser user;
 
-    protected WhiteboardClientRemoteServant(WhiteboardClient client) throws RemoteException {
+    protected WhiteboardClientRemoteServant(WhiteboardUser user) throws RemoteException {
         super();
-        this.client = client;
+        this.user = user;
     }
 
     @Override
@@ -22,7 +22,7 @@ public class WhiteboardClientRemoteServant extends UnicastRemoteObject implement
     }
 
     @Override
-    public ArrayList<String> syncChatMessages() throws RemoteException {
-        return null;
+    public void addNewUser(String username) throws RemoteException {
+
     }
 }
