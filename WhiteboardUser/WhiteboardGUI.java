@@ -183,6 +183,7 @@ public class WhiteboardGUI extends JFrame{
         int result = JOptionPane.showConfirmDialog(this, Utils.NEW_BOARD_WARNING, "New Board", JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
             user.getBoardPanel().clearBoard();
+            user.newBoardRemote();
         }
     }
 

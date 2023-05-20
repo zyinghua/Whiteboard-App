@@ -112,9 +112,9 @@ public class WhiteboardUser {
                         clientRemotes.get(username).addChatMessage(this.username, message);
                     } catch (RemoteException e) {
                         if (isManager) {
-                            JOptionPane.showMessageDialog(null, "Something wrong with the remote connection to " + username + ". User removed.", "Error", JOptionPane.ERROR_MESSAGE);
-                            // kick the user
+                            // remove the user
 
+                            JOptionPane.showMessageDialog(null, "Something wrong with the remote connection to " + username + ". User removed.", "Error", JOptionPane.ERROR_MESSAGE);
                         } else {
                             JOptionPane.showMessageDialog(null, "Something wrong with the remote connection, suggesting restart the program.", "Error", JOptionPane.ERROR_MESSAGE);
                         }
@@ -144,6 +144,25 @@ public class WhiteboardUser {
                             this.getClientRemotes().get(username).removeUserInfo(getUsername());
                         } catch (RemoteException e) {
                             // pass
+                        }
+                    }).start();
+                }
+            }
+        }
+    }
+
+    public void newBoardRemote() {
+        if (isManager) {
+            for (String username : this.getClientRemotes().keySet()) {
+                if (!username.equals(getUsername()))
+                {
+                    new Thread (() -> {
+                        try {
+                            this.getClientRemotes().get(username).newBoard();
+                        } catch (RemoteException e) {
+                            // remove the user
+
+                            JOptionPane.showMessageDialog(null, "Something wrong with the remote connection to " + username + ". User removed.", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     }).start();
                 }
