@@ -3,10 +3,7 @@ package WhiteboardUser;
 import remotes.WhiteboardUserRemote;
 import remotes.WhiteboardServerRemote;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
@@ -26,12 +23,10 @@ public class WhiteboardClient extends WhiteboardUser{
             HashMap<String, WhiteboardUserRemote> clientRemotes = board_remote.getClientRemotes();
 
             byte[] boardImageInBytes = board_remote.getWhiteboardImageInBytes();
-            ByteArrayInputStream inputStream = new ByteArrayInputStream(boardImageInBytes);
-            BufferedImage boardImage = ImageIO.read(inputStream);
 
             this.setCurrUserListModel(currUserListModel);
             this.setChatListModel(chatListModel);
-            this.setBoardImage(boardImage);
+            this.getBoardPanel().setBoardImageFromBytes(boardImageInBytes);
             this.setClientRemotes(clientRemotes);
 
         } catch (RemoteException e) {
@@ -39,7 +34,6 @@ public class WhiteboardClient extends WhiteboardUser{
             JOptionPane.showMessageDialog(null, err_msg, "Error", JOptionPane.ERROR_MESSAGE);
             System.out.println(err_msg);
             System.exit(1);
-
         } catch (IOException e) {
             // byte[] board image parse error
             String err_msg = "Something wrong with getting the whiteboard information from the server, please try again later.";

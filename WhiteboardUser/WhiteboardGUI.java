@@ -243,6 +243,7 @@ public class WhiteboardGUI extends JFrame{
                 } else {
                     Image image = ImageIO.read(selectedFile).getScaledInstance(user.getBoardPanel().getSize().width, user.getBoardPanel().getSize().height, Image.SCALE_SMOOTH);;
                     user.getBoardPanel().setBoard(image);
+                    user.loadBoardRemote();
                 }
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this, "Open failed, an error occurred, please try again.", "Error", JOptionPane.ERROR_MESSAGE);

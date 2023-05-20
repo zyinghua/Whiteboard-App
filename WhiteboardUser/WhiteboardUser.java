@@ -3,10 +3,9 @@
 
 package WhiteboardUser;
 import remotes.WhiteboardUserRemote;
-
 import javax.swing.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 
@@ -14,7 +13,7 @@ public class WhiteboardUser {
     private boolean isManager;
     private String username;
     private File specifiedFilePath;
-    private BoardPanel boardPanel;
+    private final BoardPanel boardPanel;
     private DefaultListModel<String> chatListModel;
     private DefaultListModel<String> currUserListModel;
     private HashMap<String, WhiteboardUserRemote> clientRemotes;  // Always up to date with the 'server'
@@ -72,10 +71,6 @@ public class WhiteboardUser {
 
     public BoardPanel getBoardPanel() {
         return boardPanel;
-    }
-
-    public void setBoardImage(BufferedImage boardImage) {
-        this.boardPanel.setBoardImage(boardImage);
     }
 
     public String getUsername() {
@@ -170,14 +165,40 @@ public class WhiteboardUser {
         }
     }
 
+    public void loadBoardRemote() {
+        if (isManager) {
+            for (String username : this.getClientRemotes().keySet()) {
+                if (!username.equals(getUsername()))
+                {
+                    new Thread (() -> {
+                        try {
+                            this.getClientRemotes().get(username).loadBoard(getBoardPanel().getBoardImagesInBytes());
+                        } catch (RemoteException e) {
+                            // remove the user
+
+                            JOptionPane.showMessageDialog(null, "Something wrong with the remote connection to " + username + ". User removed.", "Error", JOptionPane.ERROR_MESSAGE);
+                        } catch(IOException e) {
+                            // byte[] board image parse error
+                            sendLeaveSignalRemote();
+                            JOptionPane.showMessageDialog(null, "Something wrong with sending new whiteboard information to other users. Please start a new board.", "Error", JOptionPane.ERROR_MESSAGE);
+                            System.exit(1);
+                        }
+                    }).start();
+                }
+            }
+        }
+    }
+
     public void disconnectByManager(boolean isKickedOut) {
-        if (isKickedOut) {
-            sendLeaveSignalRemote();
-            JOptionPane.showMessageDialog(null, "You have been kicked out by the manager.", "Quitting", JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
-        } else {
-            JOptionPane.showMessageDialog(null, "Manager left the whiteboard, the program will now terminate.", "Quitting", JOptionPane.ERROR_MESSAGE);
-            System.exit(0);
+        if(!isManager) {
+            if (isKickedOut) {
+                sendLeaveSignalRemote();
+                JOptionPane.showMessageDialog(null, "You have been kicked out by the manager.", "Quitting", JOptionPane.ERROR_MESSAGE);
+                System.exit(0);
+            } else {
+                JOptionPane.showMessageDialog(null, "Manager left the whiteboard, the program will now terminate.", "Quitting", JOptionPane.ERROR_MESSAGE);
+                System.exit(0);
+            }
         }
     }
 }

@@ -12,6 +12,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -20,7 +21,7 @@ public class BoardPanel extends JPanel {
     private int strokeWidth;
     private int graphicsFontSize;
     private Color currColor;
-    private BufferedImage board_image;
+    private BufferedImage boardImage;
     private Graphics2D graphics2D;
     private Point mouseStartPt, mouseEndPt;
 
@@ -35,7 +36,6 @@ public class BoardPanel extends JPanel {
 
         addMouseMotionListener(new MouseMotionAdapter() {  // Account for continuous mouse action
             public void mouseDragged(MouseEvent e) {
-
                 if(graphics2D != null)
                 {
                     if (getCurrentMode() == Utils.MODE_FREE_DRAW) {
@@ -72,13 +72,13 @@ public class BoardPanel extends JPanel {
     }
 
     protected void paintComponent(Graphics g) {
-        if (board_image == null) {
-            board_image = new BufferedImage(getSize().width, getSize().height, BufferedImage.TYPE_INT_RGB);
+        if (boardImage == null) {
+            boardImage = new BufferedImage(getSize().width, getSize().height, BufferedImage.TYPE_INT_RGB);
             initGraphics();
             clear();
         }
 
-        g.drawImage(board_image, 0, 0, null); // board_image by itself nothing to do with the panel, rendering here.
+        g.drawImage(boardImage, 0, 0, null); // board_image by itself nothing to do with the panel, rendering here.
     }
 
     public void clear() {
@@ -88,7 +88,7 @@ public class BoardPanel extends JPanel {
     }
 
     public void initGraphics() {
-        graphics2D = (Graphics2D) board_image.getGraphics();
+        graphics2D = (Graphics2D) boardImage.getGraphics();
         graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics2D.setStroke(new BasicStroke(getStrokeWidth()));
         graphics2D.setFont(new Font("TimesRoman", Font.PLAIN, graphicsFontSize));
@@ -199,18 +199,20 @@ public class BoardPanel extends JPanel {
     }
 
     public BufferedImage getBoardImage() {
-        return board_image;
+        return boardImage;
     }
 
     public byte[] getBoardImagesInBytes() throws IOException{
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(board_image, "png", baos);
+        ImageIO.write(boardImage, "png", baos);
         return baos.toByteArray();
     }
 
-    public void setBoardImage(BufferedImage board_image) {
-        this.board_image = board_image;
-        initGraphics();
+    public void setBoardImageFromBytes(byte[] boardImageInBytes) throws IOException {
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(boardImageInBytes);
+        this.boardImage = ImageIO.read(inputStream); // Now boardImage is updated
+        initGraphics(); // Gotta re-init the graphics2D object to inline with the new boardImage
+        repaint(); // Now paint the new boardImage to the actual panel
     }
 
     private void setDefaultValues() {
@@ -230,7 +232,7 @@ public class BoardPanel extends JPanel {
     public void setBoard(Image new_image) {
         clear(); // Deal with transparent new image
 
-        graphics2D.drawImage(new_image, 0, 0, null);
-        repaint();
+        graphics2D.drawImage(new_image, 0, 0, null); // boardImage is updated
+        repaint(); // Now update the actual graphics of the GUI Panel
     }
 }
