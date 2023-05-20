@@ -8,6 +8,7 @@ import interfaces.WhiteboardServerRemote;
 import Utils.Utils;
 import Utils.ServerCode;
 
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -15,6 +16,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.concurrent.*;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
@@ -37,7 +39,6 @@ public class JoinWhiteboard {
         } catch (RemoteException e) {
             String err_msg = "Something wrong with getting the whiteboard information from the server, please try again later.";
             JOptionPane.showMessageDialog(null, err_msg, "Error", JOptionPane.ERROR_MESSAGE);
-            System.out.println("Error with getting the whiteboard information: " + e.getMessage());
             System.out.println(err_msg);
             System.exit(1);
             return null;
@@ -52,11 +53,56 @@ public class JoinWhiteboard {
         return client;
     }
 
+    private static class WaitingDialog extends JDialog {
+        // Waiting Dialog implementation for the moment of client waiting for manager's response
+        private final JLabel messageLabel;
+        private final JProgressBar progressBar;
+        private final JButton cancelButton;
+
+        public WaitingDialog(String message, Future<Integer> future) {
+            messageLabel = new JLabel(message, SwingConstants.CENTER);
+
+            progressBar = new JProgressBar();
+            progressBar.setIndeterminate(true);
+
+            cancelButton = new JButton("Cancel");
+            JPanel buttonPanel = new JPanel();  // create a new JPanel for the button
+            buttonPanel.setLayout(new FlowLayout()); // FlowLayout centers the button
+            buttonPanel.add(cancelButton); // add the button to the new JPanel
+
+            cancelButton.addActionListener(e -> {
+                future.cancel(true);
+                dispose();
+            });
+
+            JPanel panel = new JPanel();
+            panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+            panel.add(Box.createRigidArea(new Dimension(0, 5))); // Creates a vertical gap of 5 pixels
+            panel.add(messageLabel);
+            panel.add(Box.createRigidArea(new Dimension(0, 10))); // Creates a vertical gap of 10 pixels
+            panel.add(progressBar);
+            panel.add(Box.createRigidArea(new Dimension(0, 5))); // Creates a vertical gap of 5 pixels
+            panel.add(buttonPanel); // add the buttonPanel instead of the button directly
+
+            getContentPane().add(panel);
+            setSize(350, 130);
+            setLocationRelativeTo(null);
+            setModal(true);
+            setTitle("Waiting");
+        }
+
+        public void setMessage(String message) {
+            messageLabel.setText(message);
+        }
+    }
+
     public static void main(String[] args) {
         if (args.length != 3) {
             System.out.println("Invalid parameters. " + USAGE);
             System.exit(1);
         }
+
+        ExecutorService executor = Executors.newSingleThreadExecutor();
 
         try {
             String address = args[0];
@@ -69,15 +115,18 @@ public class JoinWhiteboard {
                 System.exit(1);
             }
 
-            Registry registry = LocateRegistry.getRegistry(address, port);
+            Registry registry = LocateRegistry.getRegistry(address, port); // Get the registry
             WhiteboardServerRemote board_remote = (WhiteboardServerRemote) registry.lookup(Utils.RMI_WHITEBOARD_SERVER_NAME); // Get the remote object and use as if it's local
 
-            Utils.WaitingDialog waitingDialog = new Utils.WaitingDialog("Please wait for the manager to grant access...");
+            Future<Integer> future = executor.submit(() -> board_remote.joinWhiteboard(username)); // Submit the task to the executor
+
+            WaitingDialog waitingDialog = new WaitingDialog("Please wait for the manager to grant access...", future);
             new Thread(() -> {
                 waitingDialog.setVisible(true);
             }).start();
 
-            int access = board_remote.joinWhiteboard(username);
+            int access = future.get(); // Wait for the task to finish and get the manager's response, may throw cancellation exception if the user cancels the task via the cancel button.
+            executor.shutdown();
 
             new Thread(waitingDialog::dispose).start();
 
@@ -98,19 +147,31 @@ public class JoinWhiteboard {
                 // should never be reached
                 System.exit(1);
             }
-
         } catch (NumberFormatException e) {
             System.out.println(USAGE);
             System.out.println("Port must be an integer.\n");
             System.exit(1);
         } catch (RemoteException e){
-            String err_msg = "Cannot connect with the whiteboard server, this can due to server is not up yet or your port No. doesn't match. Please try again later.";
+            String err_msg = "Cannot connect with the whiteboard server, this can due to server is not up yet or your IP Address and Port No. don't match. Please try again later.";
             JOptionPane.showMessageDialog(null, err_msg, "Error", JOptionPane.ERROR_MESSAGE);
             System.err.println(err_msg);
             System.exit(1);
         } catch (NotBoundException e) {
+            JOptionPane.showMessageDialog(null, "Something wrong with the server side, cannot properly connect with the server.", "Error", JOptionPane.ERROR_MESSAGE);
             System.err.println("Cannot find the named remote object in the RMI registry.\n");
             System.exit(1);
+        } catch (CancellationException e) {
+            System.out.println("Whiteboard join request cancelled.");
+            System.exit(0);
+        } catch (InterruptedException | ExecutionException e) {
+            String err_msg = "Something wrong when waiting for the manager's response, please try again.";
+            JOptionPane.showMessageDialog(null, err_msg, "Error", JOptionPane.ERROR_MESSAGE);
+            System.err.println(err_msg);
+            System.exit(1);
+        } finally {
+            if (!executor.isShutdown()) {
+                executor.shutdown();
+            }
         }
     }
 }
