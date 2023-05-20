@@ -3,7 +3,8 @@
 
 import WhiteboardUser.WhiteboardGUI;
 import WhiteboardUser.WhiteboardClient;
-import interfaces.WhiteboardServerRemote;
+import remotes.WhiteboardUserRemoteServant;
+import remotes.WhiteboardServerRemote;
 
 import Utils.Utils;
 import Utils.ServerCode;
@@ -85,7 +86,7 @@ public class JoinWhiteboard {
             WhiteboardServerRemote board_remote = (WhiteboardServerRemote) registry.lookup(Utils.RMI_WHITEBOARD_SERVER_NAME); // Get the remote object and use as if it's local
 
             WhiteboardClient client = new WhiteboardClient(username, board_remote);
-            WhiteboardClientRemoteServant client_remote = new WhiteboardClientRemoteServant(client); // encapsulate with the remote
+            WhiteboardUserRemoteServant client_remote = new WhiteboardUserRemoteServant(client); // encapsulate with the remote
 
             Future<Integer> future = executor.submit(() -> board_remote.joinWhiteboard(username, client_remote)); // Submit the task to the executor
 
@@ -100,6 +101,8 @@ public class JoinWhiteboard {
             new Thread(waitingDialog::dispose).start();
 
             if (access == ServerCode.JOIN_ACCEPTED) {
+                // Manager accepted the join request
+                client.obtainWhiteboardChannelInfo(); // get the user list, chat list, remotes of peers, and the board info.
                 WhiteboardGUI board = new WhiteboardGUI(client);
                 board.setVisible(true);
                 System.out.println("Joined whiteboard on IP Address: " + address + " | Port No.: " + port + " with username: " + username + ".\n");
