@@ -1,12 +1,9 @@
-// Author: Yinghua Zhou
+package remotes;// Author: Yinghua Zhou
 // Student ID: 1308266
 
 import WhiteboardUser.WhiteboardManager;
-import interfaces.WhiteboardClientRemote;
-import interfaces.WhiteboardServerRemote;
 
 import javax.swing.*;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;

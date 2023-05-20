@@ -1,10 +1,9 @@
 // Author: Yinghua Zhou
 // Student ID: 1308266
 
-package interfaces;
+package remotes;
 
 import javax.swing.*;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
