@@ -1,22 +1,22 @@
 package remotes;// Author: Yinghua Zhou
 // Student ID: 1308266
 
-import WhiteboardUser.WhiteboardClient;
+import WhiteboardUser.WhiteboardUser;
 
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 
 public class WhiteboardClientRemoteServant extends UnicastRemoteObject implements WhiteboardClientRemote {
-    private WhiteboardClient client;
+    private WhiteboardUser user;
 
-    public WhiteboardClientRemoteServant(WhiteboardClient client) throws RemoteException {
+    public WhiteboardClientRemoteServant(WhiteboardUser user) throws RemoteException {
         super();
-        this.client = client;
+        this.user = user;
     }
 
     @Override
     public void addChatMessage(String username, String message) throws RemoteException {
-
+        user.addChatMessage(username, message);
     }
 
     @Override
