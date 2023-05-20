@@ -244,7 +244,7 @@ public class WhiteboardGUI extends JFrame{
                     user.getBoardPanel().setBoard(image);
                 }
             } catch (IOException e) {
-                JOptionPane.showMessageDialog(this, "Save failed, an error occurred, please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Open failed, an error occurred, please try again.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -536,6 +536,7 @@ public class WhiteboardGUI extends JFrame{
         String msg = user.isManager() ? Utils.BOARD_CLOSE_MANAGER : Utils.BOARD_CLOSE_CLIENT;
         int option = JOptionPane.showConfirmDialog(null, msg, "exit", JOptionPane.YES_NO_OPTION);
         if (option == JOptionPane.YES_OPTION) {
+            user.sendLeaveSignalRemote();
             System.exit(0);
         }
     }
