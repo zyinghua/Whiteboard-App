@@ -6,7 +6,7 @@ package remotes;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
-public interface WhiteboardClientRemote extends Remote {
+public interface WhiteboardUserRemote extends Remote {
     void addChatMessage(String username, String message) throws RemoteException;
     void addNewUser(String username) throws RemoteException;
 }

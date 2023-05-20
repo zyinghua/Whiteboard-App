@@ -18,7 +18,7 @@ public class WhiteboardServerRemoteServant extends UnicastRemoteObject implement
     }
 
     @Override
-    public int joinWhiteboard(String username, WhiteboardClientRemote client_remote) throws RemoteException {
+    public int joinWhiteboard(String username, WhiteboardUserRemote client_remote) throws RemoteException {
         return manager.joinWhiteboard(username, client_remote);
     }
 
@@ -38,7 +38,7 @@ public class WhiteboardServerRemoteServant extends UnicastRemoteObject implement
     }
 
     @Override
-    public HashMap<String, WhiteboardClientRemote> getClientRemotes() throws RemoteException {
+    public HashMap<String, WhiteboardUserRemote> getClientRemotes() throws RemoteException {
         return manager.getClientRemotes();
     }
 
