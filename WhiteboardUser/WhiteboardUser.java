@@ -17,7 +17,7 @@ public class WhiteboardUser {
     private BoardPanel boardPanel;
     private DefaultListModel<String> chatListModel;
     private DefaultListModel<String> currUserListModel;
-    private HashMap<String, WhiteboardUserRemote> clientRemotes;
+    private HashMap<String, WhiteboardUserRemote> clientRemotes;  // Always up to date with the 'server'
 
     public WhiteboardUser(boolean isManager, String username) {
         this.isManager = isManager;
@@ -70,10 +70,6 @@ public class WhiteboardUser {
         this.currUserListModel = currUserListModel;
     }
 
-    public void addUser(String username) {
-        this.currUserListModel.addElement(username);
-    }
-
     public BoardPanel getBoardPanel() {
         return boardPanel;
     }
@@ -97,8 +93,15 @@ public class WhiteboardUser {
     public void setClientRemotes(HashMap<String, WhiteboardUserRemote> clientRemotes) {
         this.clientRemotes = clientRemotes;
     }
-    public void addClientRemote(String username, WhiteboardUserRemote clientRemote){
+
+    public void addPeerInfo(String username, WhiteboardUserRemote clientRemote) {
+        this.currUserListModel.addElement(username);
         clientRemotes.put(username, clientRemote);
+    }
+
+    public void removePeerInfo(String username) {
+        this.currUserListModel.removeElement(username);
+        this.clientRemotes.remove(username);
     }
 
     public void sendChatMessageRemote(String message) {
@@ -118,6 +121,44 @@ public class WhiteboardUser {
                     }
                 }).start();
             }
+        }
+    }
+
+    public void sendLeaveSignalRemote() {
+        if (isManager) {
+            for (String username : this.getClientRemotes().keySet()) {
+                new Thread (() -> {
+                    try {
+                        this.getClientRemotes().get(username).disconnectByManager(false);
+                    } catch (RemoteException e) {
+                        // pass
+                    }
+                }).start();
+            }
+        } else {
+            for (String username : this.getClientRemotes().keySet()) {
+                if (!username.equals(getUsername()))
+                {
+                    new Thread (() -> {
+                        try {
+                            this.getClientRemotes().get(username).removeUserInfo(getUsername());
+                        } catch (RemoteException e) {
+                            // pass
+                        }
+                    }).start();
+                }
+            }
+        }
+    }
+
+    public void disconnectByManager(boolean isKickedOut) {
+        if (isKickedOut) {
+            sendLeaveSignalRemote();
+            JOptionPane.showMessageDialog(null, "You have been kicked out by the manager.", "Quitting", JOptionPane.ERROR_MESSAGE);
+            System.exit(0);
+        } else {
+            JOptionPane.showMessageDialog(null, "Manager left the whiteboard, the program will now terminate.", "Quitting", JOptionPane.ERROR_MESSAGE);
+            System.exit(0);
         }
     }
 }
