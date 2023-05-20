@@ -436,7 +436,7 @@ public class WhiteboardGUI extends JFrame{
             public void actionPerformed(ActionEvent e) {
                 if (!inputArea.isEmpty()) {
                     String message = inputArea.getText();
-                    user.addChatMessage(message);
+                    user.sendChatMessage(message);
                     inputArea.setText("");
                 }
             }
