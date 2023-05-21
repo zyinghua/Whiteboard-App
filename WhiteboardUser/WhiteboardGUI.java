@@ -183,7 +183,7 @@ public class WhiteboardGUI extends JFrame{
         int result = JOptionPane.showConfirmDialog(this, Utils.NEW_BOARD_WARNING, "New Board", JOptionPane.YES_NO_OPTION);
         if (result == JOptionPane.YES_OPTION) {
             user.getBoardPanel().clearBoard();
-            user.newBoardRemote();
+            ((WhiteboardManager) user).newBoardRemote();
         }
     }
 
@@ -243,7 +243,7 @@ public class WhiteboardGUI extends JFrame{
                 } else {
                     Image image = ImageIO.read(selectedFile).getScaledInstance(user.getBoardPanel().getSize().width, user.getBoardPanel().getSize().height, Image.SCALE_SMOOTH);;
                     user.getBoardPanel().setBoard(image);
-                    user.loadBoardRemote();
+                    ((WhiteboardManager) user).loadBoardRemote();
                 }
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this, "Open failed, an error occurred, please try again.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -466,20 +466,46 @@ public class WhiteboardGUI extends JFrame{
     }
 
     private void setUpUserListPanel() {
-        userListLabel.setText("Current Users:");
+        userListLabel.setText(user.isManager() ? "Current Users (Right click to kick out):" : "Current Users:");
         userList.setModel(user.getCurrUserListModel());
 
-        userList.addMouseListener(new MouseAdapter() {
-            public void mouseClicked(MouseEvent e) {
-//                try {
-//
-//                } catch (RemoteException e) {
-//                    JOptionPane.showMessageDialog(null,
-//                            "Server is down, the board will close automatically!","warning",JOptionPane.WARNING_MESSAGE);
-//                    System.exit(1);
-//                }
-            }
-        });
+        if (user.isManager()) {
+            userList.addMouseListener(new MouseAdapter() {
+                public void mouseClicked(MouseEvent e) {
+                    if (SwingUtilities.isRightMouseButton(e)) {
+                        int index = userList.locationToIndex(e.getPoint());
+                        if (index != -1) {
+                            String username = user.getCurrUserListModel().getElementAt(index);
+                            if (!username.equals(user.getUsername())) {
+                                // create the popup menu
+                                JPopupMenu popupMenu = new JPopupMenu();
+                                JMenuItem kickMenuItem = new JMenuItem("Kick out");
+                                popupMenu.add(kickMenuItem);
+
+                                kickMenuItem.addActionListener(new ActionListener() {
+                                    @Override
+                                    public void actionPerformed(ActionEvent e) {
+                                        int option = JOptionPane.showConfirmDialog(null, "Are you sure to kick \""+ username + "\" out?", "Confirm", JOptionPane.YES_NO_OPTION);
+                                        if(option == JOptionPane.YES_OPTION){
+                                            ((WhiteboardManager) user).kickUserOut(username);
+                                        }
+                                    }
+                                });
+
+                                popupMenu.show(userList, e.getX(), e.getY());
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            userList.setSelectionModel(new DefaultListSelectionModel() {
+                @Override
+                public void setSelectionInterval(int index0, int index1) {
+                    // Do nothing. This prevents items from being selected.
+                }
+            });
+        }
 
         userListScrollPane.setViewportView(userList);
 
@@ -653,10 +679,5 @@ public class WhiteboardGUI extends JFrame{
         public boolean isEmpty() {
             return getText().isEmpty() || getForeground() == Color.gray;
         }
-    }
-
-    public static void main(String[] args) {
-        WhiteboardGUI board = new WhiteboardGUI(new WhiteboardUser(true, "manager"));
-        board.setVisible(true);
     }
 }
