@@ -15,8 +15,10 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.rmi.RemoteException;
 
 public class BoardPanel extends JPanel {
+    private WhiteboardUser user;
     private int currentMode;
     private int strokeWidth;
     private int graphicsFontSize;
@@ -25,8 +27,9 @@ public class BoardPanel extends JPanel {
     private Graphics2D graphics2D;
     private Point mouseStartPt, mouseEndPt;
 
-    public BoardPanel() {
+    public BoardPanel(WhiteboardUser user) {
         initComponents();
+        this.user = user;
     }
 
     private void initComponents() {
@@ -39,7 +42,6 @@ public class BoardPanel extends JPanel {
                 if(graphics2D != null)
                 {
                     if (getCurrentMode() == Utils.MODE_FREE_DRAW) {
-                        graphics2D.setPaintMode(); // XOR free
                         updateEndPt(e);
                         draw();
                         updateStartPt(e);
@@ -53,6 +55,7 @@ public class BoardPanel extends JPanel {
 
                         updateEndPt(e);
                         draw();
+                        graphics2D.setPaintMode(); // XOR free
                     }
                 }
 
@@ -67,6 +70,12 @@ public class BoardPanel extends JPanel {
                 if(currentMode == Utils.MODE_PAINT_TEXT) {
                     updateEndPt(e);
                     draw();
+                }
+                else if (currentMode == Utils.MODE_DRAW_LINE
+                        || currentMode == Utils.MODE_DRAW_RECT
+                        || currentMode == Utils.MODE_DRAW_OVAL
+                        || currentMode == Utils.MODE_DRAW_CIRCLE) {
+                    sendDrawSignalRemote(mouseStartPt, mouseEndPt, getCurrentMode());
                 }
 
                 resetPts();
@@ -93,36 +102,123 @@ public class BoardPanel extends JPanel {
     public void initGraphics() {
         graphics2D = (Graphics2D) boardImage.getGraphics();
         graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        applyGraphicSettings();
+    }
+
+    public void applyGraphicSettings() {
         graphics2D.setStroke(new BasicStroke(getStrokeWidth()));
         graphics2D.setFont(new Font("TimesRoman", Font.PLAIN, graphicsFontSize));
         graphics2D.setColor(currColor);
     }
 
     private void draw() {
-        if (checkPtsValidity()) {
+        if (checkPtsValidity(mouseStartPt, mouseEndPt)) {
             if(getCurrentMode() == Utils.MODE_FREE_DRAW){
                 graphics2D.drawLine(mouseStartPt.x, mouseStartPt.y, mouseEndPt.x, mouseEndPt.y);
+                sendDrawSignalRemote(mouseStartPt, mouseEndPt, getCurrentMode());
             }else if(getCurrentMode() == Utils.MODE_DRAW_LINE){
                 graphics2D.drawLine(mouseStartPt.x, mouseStartPt.y, mouseEndPt.x, mouseEndPt.y);
             }else if(getCurrentMode() == Utils.MODE_DRAW_RECT){
-                graphics2D.drawRect(getShapeStartPt().x, getShapeStartPt().y, Math.abs(mouseEndPt.x - mouseStartPt.x), Math.abs(mouseEndPt.y - mouseStartPt.y));
+                Point shapeStartPt = getShapeStartPt(mouseStartPt, mouseEndPt);
+                graphics2D.drawRect(shapeStartPt.x, shapeStartPt.y, Math.abs(mouseEndPt.x - mouseStartPt.x), Math.abs(mouseEndPt.y - mouseStartPt.y));
             }else if(getCurrentMode() == Utils.MODE_DRAW_OVAL){
-                graphics2D.drawOval(getShapeStartPt().x, getShapeStartPt().y, Math.abs(mouseEndPt.x - mouseStartPt.x), Math.abs(mouseEndPt.y - mouseStartPt.y));
-            }else if(getCurrentMode() == Utils.MODE_DRAW_CIRCLE){
+                Point shapeStartPt = getShapeStartPt(mouseStartPt, mouseEndPt);
+                graphics2D.drawOval(shapeStartPt.x, shapeStartPt.y, Math.abs(mouseEndPt.x - mouseStartPt.x), Math.abs(mouseEndPt.y - mouseStartPt.y));
+            }else if(getCurrentMode() == Utils.MODE_DRAW_CIRCLE) {
                 int width = Math.abs(mouseStartPt.x - mouseEndPt.x);
                 int height = Math.abs(mouseStartPt.y - mouseEndPt.y);
                 int diameter = Math.max(width, height);
-                graphics2D.drawOval(getShapeStartPt().x, getShapeStartPt().y, diameter, diameter);
-            } else if(getCurrentMode() == Utils.MODE_PAINT_TEXT){
+                Point shapeStartPt = getShapeStartPt(mouseStartPt, mouseEndPt);
+                graphics2D.drawOval(shapeStartPt.x, shapeStartPt.y, diameter, diameter);
+            } else if(getCurrentMode() == Utils.MODE_PAINT_TEXT) {
                 String text = JOptionPane.showInputDialog(null, "Please enter the text");
                 if(text != null){
                     graphics2D.drawString(text, mouseEndPt.x, mouseEndPt.y);
+                    sendDrawSignalRemote(graphics2D.getFont(), mouseEndPt, text);
                 }
+            }
+        }
+
+        repaint();
+    }
+
+    public void drawRemote(Color color, int strokeWidth, Point startPt, Point endPt, int mode)
+    {
+        graphics2D.setStroke(new BasicStroke(strokeWidth));
+        graphics2D.setColor(color);
+
+        if(checkPtsValidity(startPt, endPt))
+        {
+            if(mode == Utils.MODE_FREE_DRAW){
+                graphics2D.drawLine(startPt.x, startPt.y, endPt.x, endPt.y);
+            }else if(mode == Utils.MODE_DRAW_LINE){
+                graphics2D.drawLine(startPt.x, startPt.y, endPt.x, endPt.y);
+            }else if(mode == Utils.MODE_DRAW_RECT){
+                Point shapeStartPt = getShapeStartPt(startPt, endPt);
+                graphics2D.drawRect(shapeStartPt.x, shapeStartPt.y, Math.abs(endPt.x - startPt.x), Math.abs(endPt.y - startPt.y));
+            }else if(mode == Utils.MODE_DRAW_OVAL){
+                Point shapeStartPt = getShapeStartPt(startPt, endPt);
+                graphics2D.drawOval(shapeStartPt.x, shapeStartPt.y, Math.abs(endPt.x - startPt.x), Math.abs(endPt.y - startPt.y));
+            }else if(mode == Utils.MODE_DRAW_CIRCLE){
+                int width = Math.abs(startPt.x - endPt.x);
+                int height = Math.abs(startPt.y - endPt.y);
+                int diameter = Math.max(width, height);
+                Point shapeStartPt = getShapeStartPt(startPt, endPt);
+                graphics2D.drawOval(shapeStartPt.x, shapeStartPt.y, diameter, diameter);
             }
 
             repaint();
         }
+
+        applyGraphicSettings();
     }
+
+    public void drawRemote(Color color, Font font, Point endPt, String text)
+    {
+        graphics2D.setFont(font);
+        graphics2D.setColor(color);
+
+        if((endPt != null) && (text != null) && (!text.isEmpty())){
+            graphics2D.drawString(text,endPt.x, endPt.y);
+            repaint();
+        }
+
+        applyGraphicSettings();
+    }
+
+    public void sendDrawSignalRemote(Point startPt, Point endPt, int mode)
+    {
+        for (String username : this.user.getClientRemotes().keySet()) {
+            if (!username.equals(this.user.getUsername()))
+            {
+                new Thread(() -> {
+                    try {
+                        this.user.getClientRemotes().get(username).draw(currColor, strokeWidth, startPt, endPt, mode);
+                    } catch (RemoteException e) {
+                        System.out.println(e.getMessage());
+                    }
+                }).start();
+            }
+        }
+    }
+
+    public void sendDrawSignalRemote(Font font, Point endPt, String text)
+    {
+        for (String username : this.user.getClientRemotes().keySet()) {
+            if (!username.equals(this.user.getUsername()))
+            {
+                new Thread(() -> {
+                    try {
+                        this.user.getClientRemotes().get(username).draw(currColor, font, endPt, text);
+                    } catch (RemoteException ignored) {
+
+                    }
+                }).start();
+            }
+        }
+    }
+
+
 
     private void resetPts() {
         mouseStartPt = null;
@@ -137,12 +233,12 @@ public class BoardPanel extends JPanel {
         mouseEndPt = e.getPoint();
     }
 
-    private Point getShapeStartPt() {
-        return new Point(Math.min(mouseStartPt.x, mouseEndPt.x), Math.min(mouseStartPt.y, mouseEndPt.y));
+    private Point getShapeStartPt(Point startPt, Point endPt) {
+        return new Point(Math.min(startPt.x, endPt.x), Math.min(startPt.y, endPt.y));
     }
 
-    private boolean checkPtsValidity() {
-        return (mouseStartPt != null) && (mouseEndPt != null);
+    private boolean checkPtsValidity(Point startPt, Point endPt) {
+        return (startPt != null) && (endPt != null);
     }
 
     public int getStrokeWidth() {
