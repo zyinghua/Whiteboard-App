@@ -95,7 +95,9 @@ public class WhiteboardUser {
     }
 
     public void removePeerInfo(String username) {
-        this.currUserListModel.removeElement(username);
+        if (this.currUserListModel.contains(username))
+            this.currUserListModel.removeElement(username);
+
         this.clientRemotes.remove(username);
     }
 
@@ -120,84 +122,18 @@ public class WhiteboardUser {
     }
 
     public void sendLeaveSignalRemote() {
-        if (isManager) {
-            for (String username : this.getClientRemotes().keySet()) {
-                new Thread (() -> {
+        for (String username : this.getClientRemotes().keySet()) {
+            if (!username.equals(getUsername())) {
+                new Thread(() -> {
                     try {
-                        this.getClientRemotes().get(username).disconnectByManager(false);
+                        if(isManager)
+                            this.getClientRemotes().get(username).disconnectByManager(false);
+                        else
+                            this.getClientRemotes().get(username).removeUserInfo(getUsername()); // Tell others to remove me
                     } catch (RemoteException e) {
                         // pass
                     }
                 }).start();
-            }
-        } else {
-            for (String username : this.getClientRemotes().keySet()) {
-                if (!username.equals(getUsername()))
-                {
-                    new Thread (() -> {
-                        try {
-                            this.getClientRemotes().get(username).removeUserInfo(getUsername());
-                        } catch (RemoteException e) {
-                            // pass
-                        }
-                    }).start();
-                }
-            }
-        }
-    }
-
-    public void newBoardRemote() {
-        if (isManager) {
-            for (String username : this.getClientRemotes().keySet()) {
-                if (!username.equals(getUsername()))
-                {
-                    new Thread (() -> {
-                        try {
-                            this.getClientRemotes().get(username).newBoard();
-                        } catch (RemoteException e) {
-                            // remove the user
-
-                            JOptionPane.showMessageDialog(null, "Something wrong with the remote connection to " + username + ". User removed.", "Error", JOptionPane.ERROR_MESSAGE);
-                        }
-                    }).start();
-                }
-            }
-        }
-    }
-
-    public void loadBoardRemote() {
-        if (isManager) {
-            for (String username : this.getClientRemotes().keySet()) {
-                if (!username.equals(getUsername()))
-                {
-                    new Thread (() -> {
-                        try {
-                            this.getClientRemotes().get(username).loadBoard(getBoardPanel().getBoardImagesInBytes());
-                        } catch (RemoteException e) {
-                            // remove the user
-
-                            JOptionPane.showMessageDialog(null, "Something wrong with the remote connection to " + username + ". User removed.", "Error", JOptionPane.ERROR_MESSAGE);
-                        } catch(IOException e) {
-                            // byte[] board image parse error
-                            sendLeaveSignalRemote();
-                            JOptionPane.showMessageDialog(null, "Something wrong with sending new whiteboard information to other users. Please start a new board.", "Error", JOptionPane.ERROR_MESSAGE);
-                            System.exit(1);
-                        }
-                    }).start();
-                }
-            }
-        }
-    }
-
-    public void disconnectByManager(boolean isKickedOut) {
-        if(!isManager) {
-            if (isKickedOut) {
-                sendLeaveSignalRemote();
-                JOptionPane.showMessageDialog(null, "You have been kicked out by the manager.", "Quitting", JOptionPane.ERROR_MESSAGE);
-                System.exit(0);
-            } else {
-                JOptionPane.showMessageDialog(null, "Manager left the whiteboard, the program will now terminate.", "Quitting", JOptionPane.ERROR_MESSAGE);
-                System.exit(0);
             }
         }
     }
