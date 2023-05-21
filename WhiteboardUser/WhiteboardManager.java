@@ -4,6 +4,7 @@ import Utils.ServerCode;
 import remotes.WhiteboardUserRemote;
 
 import javax.swing.*;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +18,7 @@ public class WhiteboardManager extends WhiteboardUser{
         waitingClients = new ArrayList<>();
     }
 
-    public int joinWhiteboard(String username, WhiteboardUserRemote clientRemote){
+    public int requestWhiteboardJoin(String username, WhiteboardUserRemote clientRemote){
         if (getCurrUserListModel().contains(username) || getWaitingClients().contains(username)){
             return ServerCode.JOIN_DENIED_USERNAME_ALREADY_EXISTS;
         }
@@ -48,6 +49,63 @@ public class WhiteboardManager extends WhiteboardUser{
         }
         else{
             return ServerCode.JOIN_DENIED_BY_MANAGER;
+        }
+    }
+
+    public void newBoardRemote() {
+        for (String username : this.getClientRemotes().keySet()) {
+            if (!username.equals(getUsername()))
+            {
+                new Thread (() -> {
+                    try {
+                        this.getClientRemotes().get(username).newBoard();
+                    } catch (RemoteException e) {
+                        // remove the user
+
+                        JOptionPane.showMessageDialog(null, "Something wrong with the remote connection to " + username + ". User removed.", "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }).start();
+            }
+        }
+
+    }
+
+    public void loadBoardRemote() {
+        for (String username : this.getClientRemotes().keySet()) {
+            if (!username.equals(getUsername()))
+            {
+                new Thread (() -> {
+                    try {
+                        this.getClientRemotes().get(username).loadBoard(getBoardPanel().getBoardImagesInBytes());
+                    } catch (RemoteException e) {
+                        // remove the user
+
+                        JOptionPane.showMessageDialog(null, "Something wrong with the remote connection to " + username + ". User removed.", "Error", JOptionPane.ERROR_MESSAGE);
+                    } catch(IOException e) {
+                        // byte[] board image parse error
+                        sendLeaveSignalRemote();
+                        JOptionPane.showMessageDialog(null, "Something wrong with sending new whiteboard information to other users. Please start a new board.", "Error", JOptionPane.ERROR_MESSAGE);
+                        System.exit(1);
+                    }
+                }).start();
+            }
+        }
+    }
+
+    public void kickUserOut(String username) {
+        if (getCurrUserListModel().contains(username)) {
+            System.out.println("Kicking " + username + " out.");
+            new Thread(() -> {
+                try {
+                    // No need to remove here as a leave signal of the user will be received
+                    getClientRemotes().get(username).disconnectByManager(false);
+                    sendChatMessage(username + " has been kicked out by the manager.");
+                } catch(RemoteException e) {
+                    removePeerInfo(username);
+                    JOptionPane.showMessageDialog(null, "Something wrong when trying to kick " + username + " Out. User removed.", "Error", JOptionPane.ERROR_MESSAGE);
+                    e.printStackTrace();
+                }
+            }).start();
         }
     }
 
