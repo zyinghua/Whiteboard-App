@@ -30,7 +30,7 @@ public class CreateWhiteboard {
 
             if (port < 0 || port > 65535) {
                 System.out.println(USAGE);
-                System.err.println("[Server failed to start] Port must be between 0 and 65535.\n");
+                System.err.println("[Whiteboard failed to start] Port must be between 0 and 65535.\n");
                 System.exit(1);
             }
 
@@ -50,15 +50,15 @@ public class CreateWhiteboard {
 
         } catch (NumberFormatException e) {
             System.out.println(USAGE);
-            System.out.println("[Server failed to start] Port must be an integer.\n");
+            System.out.println("[Whiteboard failed to start] Port must be an integer.\n");
             System.exit(1);
         } catch (RemoteException e){
-            String err_msg = "[Server failed to start] Port already in use.";
+            String err_msg = "[Whiteboard failed to start] Port already in use.";
             JOptionPane.showMessageDialog(null, err_msg, "Error", JOptionPane.ERROR_MESSAGE);
             System.err.println(err_msg + "\n");
             System.exit(1);
         }catch (AlreadyBoundException e){
-            System.err.println("[Server failed to start] The board object binding name already in the RMI Registry.\n");
+            System.err.println("[Whiteboard failed to start] The board object binding name already in the RMI Registry.\n");
             System.exit(1);
         }
     }
