@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class WhiteboardGUI extends JFrame{
-    private WhiteboardUser user;
+    private final WhiteboardUser user;
     private static final String guiName = "Whiteboard";
     private JMenuBar menuBar;
     private JRadioButtonMenuItem drawLine;
@@ -476,24 +476,27 @@ public class WhiteboardGUI extends JFrame{
                         int index = userList.locationToIndex(e.getPoint());
                         if (index != -1) {
                             String username = user.getCurrUserListModel().getElementAt(index);
-                            if (!username.equals(user.getUsername())) {
-                                // create the popup menu
-                                JPopupMenu popupMenu = new JPopupMenu();
-                                JMenuItem kickMenuItem = new JMenuItem("Kick out");
-                                popupMenu.add(kickMenuItem);
 
-                                kickMenuItem.addActionListener(new ActionListener() {
-                                    @Override
-                                    public void actionPerformed(ActionEvent e) {
+                            // create the popup menu
+                            JPopupMenu popupMenu = new JPopupMenu();
+                            JMenuItem kickMenuItem = new JMenuItem("Kick out");
+                            popupMenu.add(kickMenuItem);
+
+                            kickMenuItem.addActionListener(new ActionListener() {
+                                @Override
+                                public void actionPerformed(ActionEvent e) {
+                                    if (!username.equals(user.getUsername())) {
                                         int option = JOptionPane.showConfirmDialog(null, "Are you sure to kick \""+ username + "\" out?", "Confirm", JOptionPane.YES_NO_OPTION);
                                         if(option == JOptionPane.YES_OPTION){
                                             ((WhiteboardManager) user).kickUserOut(username);
                                         }
+                                    } else {
+                                        JOptionPane.showMessageDialog(null, "You cannot kick yourself out.", "Error", JOptionPane.ERROR_MESSAGE);
                                     }
-                                });
+                                }
+                            });
 
-                                popupMenu.show(userList, e.getX(), e.getY());
-                            }
+                            popupMenu.show(userList, e.getX(), e.getY());
                         }
                     }
                 }
