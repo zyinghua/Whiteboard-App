@@ -4,6 +4,7 @@ package remotes;// Author: Yinghua Zhou
 import WhiteboardUser.WhiteboardUser;
 import WhiteboardUser.WhiteboardClient;
 
+import java.awt.*;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -45,5 +46,15 @@ public class WhiteboardUserRemoteServant extends UnicastRemoteObject implements 
     @Override
     public void loadBoard(byte[] boardImageInBytes) throws IOException {
         user.getBoardPanel().setBoardImageFromBytes(boardImageInBytes);
+    }
+
+    @Override
+    public void draw(Color color, int strokeSize, Point startPt, Point endPt, int mode) throws RemoteException {
+        user.getBoardPanel().drawRemote(color, strokeSize, startPt, endPt, mode);
+    }
+
+    @Override
+    public void draw(Color color, Font font, Point endPt, String text) throws RemoteException {
+        user.getBoardPanel().drawRemote(color, font, endPt, text);
     }
 }
