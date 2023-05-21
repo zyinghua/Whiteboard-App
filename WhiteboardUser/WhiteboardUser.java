@@ -22,7 +22,7 @@ public class WhiteboardUser {
         this.isManager = isManager;
         this.username = username;
         this.specifiedFilePath = null;
-        this.boardPanel = new BoardPanel();
+        this.boardPanel = new BoardPanel(this);
         this.chatListModel = new DefaultListModel<>();
         this.currUserListModel = new DefaultListModel<>();
         this.clientRemotes = new HashMap<>();
