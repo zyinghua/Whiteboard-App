@@ -42,4 +42,15 @@ public class WhiteboardClient extends WhiteboardUser{
             System.exit(1);
         }
     }
+
+    public void disconnectByManager(boolean isKickedOut) {
+        if (isKickedOut) {
+            sendLeaveSignalRemote();
+            JOptionPane.showMessageDialog(null, "You have been kicked out by the manager.", "Quitting", JOptionPane.ERROR_MESSAGE);
+            System.exit(0);
+        } else {
+            JOptionPane.showMessageDialog(null, "Manager left the whiteboard, the program will now terminate.", "Quitting", JOptionPane.ERROR_MESSAGE);
+            System.exit(0);
+        }
+    }
 }
