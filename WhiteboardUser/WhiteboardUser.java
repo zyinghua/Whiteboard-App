@@ -108,13 +108,9 @@ public class WhiteboardUser {
                     try {
                         clientRemotes.get(username).addChatMessage(this.username, message);
                     } catch (RemoteException e) {
-                        if (isManager) {
-                            // remove the user
-
-                            JOptionPane.showMessageDialog(null, "Something wrong with the remote connection to " + username + ". User removed.", "Error", JOptionPane.ERROR_MESSAGE);
-                        } else {
-                            JOptionPane.showMessageDialog(null, "Something wrong with the remote connection, suggesting restart the program.", "Error", JOptionPane.ERROR_MESSAGE);
-                        }
+                        JOptionPane.showMessageDialog(null, "Something wrong with the remote connection to " + username + ". Please restart the Whiteboard program.", "Error", JOptionPane.ERROR_MESSAGE);
+                        sendLeaveSignalRemote();
+                        System.exit(1);
                     }
                 }).start();
             }
