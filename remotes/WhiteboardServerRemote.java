@@ -16,5 +16,4 @@ public interface WhiteboardServerRemote extends Remote {
     DefaultListModel<String> getChatListModel() throws RemoteException;
     HashMap<String, WhiteboardUserRemote> getClientRemotes() throws RemoteException;
     byte[] getWhiteboardImageInBytes() throws IOException;
-    void leaveWhiteboard(String username) throws RemoteException;
 }

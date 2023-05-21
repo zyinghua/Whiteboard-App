@@ -19,7 +19,7 @@ public class WhiteboardServerRemoteServant extends UnicastRemoteObject implement
 
     @Override
     public int joinWhiteboard(String username, WhiteboardUserRemote client_remote) throws RemoteException {
-        return manager.joinWhiteboard(username, client_remote);
+        return manager.requestWhiteboardJoin(username, client_remote);
     }
 
     @Override
@@ -45,10 +45,5 @@ public class WhiteboardServerRemoteServant extends UnicastRemoteObject implement
     @Override
     public byte[] getWhiteboardImageInBytes() throws IOException {
         return manager.getBoardPanel().getBoardImagesInBytes();
-    }
-
-    @Override
-    public void leaveWhiteboard(String username) throws RemoteException {
-
     }
 }

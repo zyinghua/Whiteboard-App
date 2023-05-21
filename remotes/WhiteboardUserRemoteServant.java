@@ -2,6 +2,7 @@ package remotes;// Author: Yinghua Zhou
 // Student ID: 1308266
 
 import WhiteboardUser.WhiteboardUser;
+import WhiteboardUser.WhiteboardClient;
 
 import java.io.IOException;
 import java.rmi.RemoteException;
@@ -32,7 +33,8 @@ public class WhiteboardUserRemoteServant extends UnicastRemoteObject implements 
 
     @Override
     public void disconnectByManager(boolean isKickedOut) throws RemoteException {
-        user.disconnectByManager(isKickedOut);
+        if(!user.isManager())
+            ((WhiteboardClient) user).disconnectByManager(isKickedOut);
     }
 
     @Override
