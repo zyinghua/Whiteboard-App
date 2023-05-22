@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 
 public class BoardPanel extends JPanel {
-    private WhiteboardUser user;
+    private final WhiteboardUser user;
     private int currentMode;
     private int strokeWidth;
     private int graphicsFontSize;
@@ -67,7 +67,7 @@ public class BoardPanel extends JPanel {
                 updateStartPt(e);
             }
             public void mouseReleased(MouseEvent e) {
-                if(currentMode == Utils.MODE_PAINT_TEXT) {
+                if(currentMode == Utils.MODE_PAINT_TEXT || currentMode == Utils.MODE_FREE_DRAW) {
                     updateEndPt(e);
                     draw();
                 }
@@ -75,7 +75,14 @@ public class BoardPanel extends JPanel {
                         || currentMode == Utils.MODE_DRAW_RECT
                         || currentMode == Utils.MODE_DRAW_OVAL
                         || currentMode == Utils.MODE_DRAW_CIRCLE) {
-                    sendDrawSignalRemote(mouseStartPt, mouseEndPt, getCurrentMode());
+                    if (mouseEndPt != null) {
+                        graphics2D.setXORMode(Color.WHITE);
+                        draw();
+
+                        graphics2D.setPaintMode();
+                        draw();
+                        sendDrawSignalRemote(mouseStartPt, mouseEndPt, getCurrentMode());
+                    }
                 }
 
                 resetPts();
