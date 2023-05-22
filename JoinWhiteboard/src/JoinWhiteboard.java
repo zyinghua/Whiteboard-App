@@ -95,54 +95,65 @@ public class JoinWhiteboard {
                 waitingDialog.setVisible(true);
             }).start();
 
-            int access = future.get(); // Wait for the task to finish and get the manager's response, may throw cancellation exception if the user cancels the task via the cancel button.
-            executor.shutdown();
+            try {
+                int access = future.get(); // Wait for the task to finish and get the manager's response, may throw cancellation exception if the user cancels the task via the cancel button.
+                executor.shutdown();
 
-            new Thread(waitingDialog::dispose).start();
+                new Thread(waitingDialog::dispose).start();
 
-            if (access == ServerCode.JOIN_ACCEPTED) {
-                // Manager accepted the join request
-                client.obtainWhiteboardChannelInfo(); // get the user list, chat list, remotes of peers, and the board info.
-                WhiteboardGUI board = new WhiteboardGUI(client);
-                board.setVisible(true);
-                System.out.println("Joined whiteboard on IP Address: " + address + " | Port No.: " + port + " with username: " + username + ".\n");
-            } else if (access == ServerCode.JOIN_DENIED_USERNAME_ALREADY_EXISTS) {
-                JOptionPane.showMessageDialog(null, "Username already exists, please try another one.", "Error", JOptionPane.ERROR_MESSAGE);
-                System.out.println("Username already exists, please try another one.\n");
-                System.exit(1);
-            } else if (access == ServerCode.JOIN_DENIED_BY_MANAGER) {
-                JOptionPane.showMessageDialog(null, "Join access denied by the whiteboard manager.", "Error", JOptionPane.ERROR_MESSAGE);
-                System.out.println("Join access denied by the whiteboard manager from IP Address: " + address + " | Port No.: " + port + ". Attempted to join with username: " + username + ".\n");
-                System.exit(1);
-            } else {
-                // should never be reached
+                if (access == ServerCode.JOIN_ACCEPTED) {
+                    // Manager accepted the join request
+                    client.obtainWhiteboardChannelInfo(); // get the user list, chat list, remotes of peers, and the board info.
+                    WhiteboardGUI board = new WhiteboardGUI(client);
+                    board.setVisible(true);
+                    System.out.println("Joined whiteboard on IP Address: " + address + " | Port No.: " + port + " with username: " + username + ".\n");
+                } else if (access == ServerCode.JOIN_DENIED_USERNAME_ALREADY_EXISTS) {
+                    String err_msg = "Username already exists, please try another one.";
+
+                    JOptionPane.showMessageDialog(null, err_msg, "Error", JOptionPane.ERROR_MESSAGE);
+                    System.out.println(err_msg + "\n");
+                    System.exit(1);
+                } else if (access == ServerCode.JOIN_DENIED_BY_MANAGER) {
+                    JOptionPane.showMessageDialog(null, "Join access denied by the whiteboard manager.", "Error", JOptionPane.ERROR_MESSAGE);
+                    System.out.println("Join access denied by the whiteboard manager from IP Address: " + address + " | Port No.: " + port + ". Attempted to join with username: " + username + ".\n");
+                    System.exit(1);
+                } else if (access == ServerCode.JOIN_CANCELLED_DUE_TO_MANAGER_ERROR) {
+                    JOptionPane.showMessageDialog(null, "Join request cancelled due to manager error, please try again.", "Error", JOptionPane.ERROR_MESSAGE);
+                    System.out.println("Join request cancelled due to whiteboard manager error from IP Address: " + address + " | Port No.: " + port + ". Attempted to join with username: " + username + ".\n");
+                    System.exit(1);
+                } else {
+                    // should never be reached
+                    System.exit(1);
+                }
+            } catch (CancellationException e) {
+                executor.shutdown();
+
+                board_remote.cancelJoinWhiteboard(username);
+                System.out.println("Whiteboard join request cancelled.");
+                System.exit(0);
+            } catch (InterruptedException | ExecutionException e) {
+                executor.shutdown();
+                String err_msg = "Something wrong when waiting for the manager's response, please try again.";
+                JOptionPane.showMessageDialog(null, err_msg, "Error", JOptionPane.ERROR_MESSAGE);
+                System.err.println(err_msg);
                 System.exit(1);
             }
         } catch (NumberFormatException e) {
+            executor.shutdown();
             System.out.println(USAGE);
             System.out.println("Port must be an integer.\n");
             System.exit(1);
         } catch (RemoteException e){
+            executor.shutdown();
             String err_msg = "Cannot connect with the whiteboard server, this can due to server is not up yet or your IP Address and Port No. don't match. Please try again later.";
             JOptionPane.showMessageDialog(null, err_msg, "Error", JOptionPane.ERROR_MESSAGE);
             System.err.println(err_msg);
             System.exit(1);
         } catch (NotBoundException e) {
+            executor.shutdown();
             JOptionPane.showMessageDialog(null, "Something wrong with the server side, cannot properly connect with the server.", "Error", JOptionPane.ERROR_MESSAGE);
             System.err.println("Cannot find the named remote object in the RMI registry.\n");
             System.exit(1);
-        } catch (CancellationException e) {
-            System.out.println("Whiteboard join request cancelled.");
-            System.exit(0);
-        } catch (InterruptedException | ExecutionException e) {
-            String err_msg = "Something wrong when waiting for the manager's response, please try again.";
-            JOptionPane.showMessageDialog(null, err_msg, "Error", JOptionPane.ERROR_MESSAGE);
-            System.err.println(err_msg);
-            System.exit(1);
-        } finally {
-            if (!executor.isShutdown()) {
-                executor.shutdown();
-            }
         }
     }
 }
