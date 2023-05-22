@@ -6,50 +6,60 @@ import remotes.WhiteboardUserRemote;
 import javax.swing.*;
 import java.io.IOException;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.*;
 
 public class WhiteboardManager extends WhiteboardUser{
-    private ArrayList<String> waitingClients;
-    private HashMap<String, JOptionPane> waitingClientDialogs;
+    private final HashMap<String, JoinExecutor> waitingClients;
 
     public WhiteboardManager(String username){
         super(true, username);
-        waitingClients = new ArrayList<>();
+        waitingClients = new HashMap<>();
     }
 
     public int requestWhiteboardJoin(String username, WhiteboardUserRemote clientRemote){
-        if (getCurrUserListModel().contains(username) || getWaitingClients().contains(username)){
+        if (getCurrUserListModel().contains(username) || this.waitingClients.containsKey(username)){
             return ServerCode.JOIN_DENIED_USERNAME_ALREADY_EXISTS;
         }
 
-        addWaitingClient(username);
+        try {
+            JoinExecutor joinExecutor = new JoinExecutor(username);
+            addWaitingClient(username, joinExecutor);
 
-        int option = JOptionPane.showConfirmDialog(null, "User \"" + username + "\" wants to access the whiteboard, approve?", "Whiteboard Access Request", JOptionPane.YES_NO_OPTION);
+            int option = joinExecutor.getOption();
 
-        removeWaitingClient(username);
+            removeWaitingClient(username);
 
-        if(option == JOptionPane.YES_OPTION){
-            for (String existingUsernames : getClientRemotes().keySet()) {
-                if (!existingUsernames.equals(getUsername())) {
-                    new Thread(() -> {
-                        try {
-                            getClientRemotes().get(existingUsernames).addNewUser(username, clientRemote);
-                        } catch (RemoteException e) {
-                            sendLeaveSignalRemote();
-                            JOptionPane.showMessageDialog(null, "Something wrong with the remote connection to \"" + username + "\". Please restart the Whiteboard program.", "Error", JOptionPane.ERROR_MESSAGE);
-                            System.exit(1);
-                        }
-                    }).start();
+            if(option == JOptionPane.YES_OPTION)
+            {
+                for (String existingUsernames : getClientRemotes().keySet()) {
+                    if (!existingUsernames.equals(getUsername())) {
+                        new Thread(() -> {
+                            try {
+                                getClientRemotes().get(existingUsernames).addNewUser(username, clientRemote);
+                            } catch (RemoteException e) {
+                                sendLeaveSignalRemote();
+                                JOptionPane.showMessageDialog(null, "Something wrong with the remote connection to \"" + username + "\". Please restart the Whiteboard program.", "Error", JOptionPane.ERROR_MESSAGE);
+                                System.exit(1);
+                            }
+                        }).start();
+                    }
                 }
+
+                addPeerInfo(username, clientRemote);
+
+                return ServerCode.JOIN_ACCEPTED;
             }
-
-            addPeerInfo(username, clientRemote);
-
-            return ServerCode.JOIN_ACCEPTED;
-        }
-        else{
-            return ServerCode.JOIN_DENIED_BY_MANAGER;
+            else
+            {
+                return ServerCode.JOIN_DENIED_BY_MANAGER;
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            removeWaitingClient(username);
+            return ServerCode.JOIN_CANCELLED_DUE_TO_MANAGER_ERROR;
+        } catch (CancellationException e) {
+            removeWaitingClient(username);
+            return ServerCode.JOIN_CANCELLED_BY_CLIENT;
         }
     }
 
@@ -69,7 +79,6 @@ public class WhiteboardManager extends WhiteboardUser{
                 }).start();
             }
         }
-
     }
 
     public void loadBoardRemote() {
@@ -112,18 +121,48 @@ public class WhiteboardManager extends WhiteboardUser{
     }
 
     public void cancelJoinWhiteboard(String username){
-        removeWaitingClient(username);
+        if (waitingClients.containsKey(username)){
+            waitingClients.get(username).cancelJoin();
+        }
     }
 
-    public void addWaitingClient(String username){
-        waitingClients.add(username);
+    public void addWaitingClient(String username, JoinExecutor joinExecutor){
+        waitingClients.put(username, joinExecutor);
     }
 
     public void removeWaitingClient(String username){
+        waitingClients.get(username).shutdown();
         waitingClients.remove(username);
     }
 
-    public ArrayList<String> getWaitingClients(){
-        return waitingClients;
+    private static class JoinExecutor {
+        private final ExecutorService executor;
+        private final Future<Integer> future;
+        private final JOptionPane joinOptionPane;
+        private final JDialog joinDialog;
+
+        public JoinExecutor(String username) {
+            executor = Executors.newSingleThreadExecutor();
+            joinOptionPane = new JOptionPane("User \"" + username + "\" wants to access the whiteboard, approve?", JOptionPane.QUESTION_MESSAGE, JOptionPane.YES_NO_OPTION);
+            joinDialog = joinOptionPane.createDialog("Join Request");
+            future = executor.submit(() -> {
+                joinDialog.setVisible(true);
+                return (int) joinOptionPane.getValue();
+            });
+        }
+
+        public int getOption() throws InterruptedException, ExecutionException, CancellationException {
+            return future.get();
+        }
+
+        public void cancelJoin() {
+            joinDialog.setVisible(false);
+            joinDialog.dispose();
+            future.cancel(true);
+        }
+
+        public void shutdown() {
+            executor.shutdown();
+        }
     }
 }
