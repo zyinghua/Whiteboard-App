@@ -13,11 +13,11 @@ import java.util.HashMap;
 import java.util.concurrent.*;
 
 public class WhiteboardManager extends WhiteboardUser{
-    private final HashMap<String, JoinExecutor> waitingClients;
+    private final ConcurrentHashMap<String, JoinExecutor> waitingClients;
 
     public WhiteboardManager(String username){
         super(true, username);
-        waitingClients = new HashMap<>();
+        waitingClients = new ConcurrentHashMap<>();
     }
 
     public int requestWhiteboardJoin(String username, WhiteboardUserRemote clientRemote){

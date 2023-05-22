@@ -52,7 +52,7 @@ public class WhiteboardUser {
         this.chatListModel = chatListModel;
     }
 
-    public void receiveChatMessage(String username, String message) {
+    public synchronized void receiveChatMessage(String username, String message) {
         this.chatListModel.addElement(username + ": " + message);
     }
 
@@ -89,7 +89,7 @@ public class WhiteboardUser {
         this.clientRemotes = clientRemotes;
     }
 
-    public void addPeerInfo(String username, WhiteboardUserRemote clientRemote) {
+    public synchronized void addPeerInfo(String username, WhiteboardUserRemote clientRemote) {
         this.currUserListModel.addElement(username);
         clientRemotes.put(username, clientRemote);
     }
