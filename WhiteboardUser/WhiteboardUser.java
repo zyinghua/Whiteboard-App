@@ -126,9 +126,7 @@ public class WhiteboardUser {
                             this.getClientRemotes().get(username).disconnectByManager(false);
                         else
                             this.getClientRemotes().get(username).removeUserInfo(getUsername()); // Tell others to remove me
-                    } catch (RemoteException e) {
-                        // pass
-                    }
+                    } catch (RemoteException ignored) {}
                 }).start();
             }
         }

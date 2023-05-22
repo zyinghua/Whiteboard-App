@@ -23,7 +23,7 @@ public class BoardPanel extends JPanel {
     private int strokeWidth;
     private int graphicsFontSize;
     private Color currColor;
-    private BufferedImage boardImage;
+    private BufferedImage boardImage;  // All drawing is done on this image first, then rendered to the panel
     private Graphics2D graphics2D;
     private Point mouseStartPt, mouseEndPt;
 
@@ -64,7 +64,7 @@ public class BoardPanel extends JPanel {
         });
         addMouseListener(new MouseAdapter() {  // Account for single discrete mouse action
             public void mousePressed(MouseEvent e) {
-                if (mouseStartPt == null)
+                if (mouseStartPt == null)  // Does not take concurrent left-right mouse pressed
                 {
                     updateStartPt(e);
                 }
@@ -79,12 +79,12 @@ public class BoardPanel extends JPanel {
                         || currentMode == Utils.MODE_DRAW_OVAL
                         || currentMode == Utils.MODE_DRAW_CIRCLE) {
                     if (checkPtsValidity(mouseStartPt, mouseEndPt)) {
-                        graphics2D.setXORMode(Color.WHITE);
+                        graphics2D.setXORMode(Color.WHITE); // cancel the previous draw
                         draw();
 
-                        graphics2D.setPaintMode();
+                        graphics2D.setPaintMode();  // use paint mode to finalise the shape draw
                         draw();
-                        sendDrawSignalRemote(mouseStartPt, mouseEndPt, getCurrentMode());
+                        sendDrawSignalRemote(mouseStartPt, mouseEndPt, getCurrentMode()); // draw only when released for shapes
                     }
                 }
 
@@ -152,7 +152,7 @@ public class BoardPanel extends JPanel {
         repaint();
     }
 
-    public void drawRemote(Color color, int strokeWidth, Point startPt, Point endPt, int mode)
+    public void drawRemote(Color color, int strokeWidth, Point startPt, Point endPt, int mode)  // receiver method
     {
         graphics2D.setStroke(new BasicStroke(strokeWidth));
         graphics2D.setColor(color);
@@ -183,7 +183,7 @@ public class BoardPanel extends JPanel {
         applyGraphicSettings();
     }
 
-    public void drawRemote(Color color, Font font, Point endPt, String text)
+    public void drawRemote(Color color, Font font, Point endPt, String text)  // receiver method
     {
         graphics2D.setFont(font);
         graphics2D.setColor(color);
@@ -196,7 +196,7 @@ public class BoardPanel extends JPanel {
         applyGraphicSettings();
     }
 
-    public void sendDrawSignalRemote(Point startPt, Point endPt, int mode)
+    public void sendDrawSignalRemote(Point startPt, Point endPt, int mode)  // sender method
     {
         for (String username : this.user.getClientRemotes().keySet()) {
             if (!username.equals(this.user.getUsername()))
@@ -212,7 +212,7 @@ public class BoardPanel extends JPanel {
         }
     }
 
-    public void sendDrawSignalRemote(Font font, Point endPt, String text)
+    public void sendDrawSignalRemote(Font font, Point endPt, String text)  // sender method
     {
         for (String username : this.user.getClientRemotes().keySet()) {
             if (!username.equals(this.user.getUsername()))
