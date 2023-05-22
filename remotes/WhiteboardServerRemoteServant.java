@@ -24,7 +24,7 @@ public class WhiteboardServerRemoteServant extends UnicastRemoteObject implement
 
     @Override
     public void cancelJoinWhiteboard(String username) throws RemoteException {
-
+        manager.cancelJoinWhiteboard(username);
     }
 
     @Override
