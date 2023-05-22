@@ -1,5 +1,7 @@
-package remotes;// Author: Yinghua Zhou
+// Author: Yinghua Zhou
 // Student ID: 1308266
+
+package remotes;
 
 import WhiteboardUser.WhiteboardManager;
 
