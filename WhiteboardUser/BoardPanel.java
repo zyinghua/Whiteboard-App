@@ -112,10 +112,6 @@ public class BoardPanel extends JPanel {
     public void initGraphics() {
         graphics2D = (Graphics2D) boardImage.getGraphics();
         graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        applyGraphicSettings();
-    }
-
-    public void applyGraphicSettings() {
         graphics2D.setStroke(new BasicStroke(getStrokeWidth()));
         graphics2D.setFont(new Font("TimesRoman", Font.PLAIN, graphicsFontSize));
         graphics2D.setColor(currColor);
@@ -154,46 +150,54 @@ public class BoardPanel extends JPanel {
 
     public void drawRemote(Color color, int strokeWidth, Point startPt, Point endPt, int mode)  // receiver method
     {
-        graphics2D.setStroke(new BasicStroke(strokeWidth));
-        graphics2D.setColor(color);
-
         if(checkPtsValidity(startPt, endPt))
         {
+            BufferedImage temp_bi = new BufferedImage(getSize().width, getSize().height, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D temp_g2d = (Graphics2D) temp_bi.getGraphics();
+            temp_g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            temp_g2d.setStroke(new BasicStroke(strokeWidth));
+            temp_g2d.setColor(color);
+
             if(mode == Utils.MODE_FREE_DRAW){
-                graphics2D.drawLine(startPt.x, startPt.y, endPt.x, endPt.y);
+                temp_g2d.drawLine(startPt.x, startPt.y, endPt.x, endPt.y);
             }else if(mode == Utils.MODE_DRAW_LINE){
-                graphics2D.drawLine(startPt.x, startPt.y, endPt.x, endPt.y);
+                temp_g2d.drawLine(startPt.x, startPt.y, endPt.x, endPt.y);
             }else if(mode == Utils.MODE_DRAW_RECT){
                 Point shapeStartPt = getShapeStartPt(startPt, endPt);
-                graphics2D.drawRect(shapeStartPt.x, shapeStartPt.y, Math.abs(endPt.x - startPt.x), Math.abs(endPt.y - startPt.y));
+                temp_g2d.drawRect(shapeStartPt.x, shapeStartPt.y, Math.abs(endPt.x - startPt.x), Math.abs(endPt.y - startPt.y));
             }else if(mode == Utils.MODE_DRAW_OVAL){
                 Point shapeStartPt = getShapeStartPt(startPt, endPt);
-                graphics2D.drawOval(shapeStartPt.x, shapeStartPt.y, Math.abs(endPt.x - startPt.x), Math.abs(endPt.y - startPt.y));
+                temp_g2d.drawOval(shapeStartPt.x, shapeStartPt.y, Math.abs(endPt.x - startPt.x), Math.abs(endPt.y - startPt.y));
             }else if(mode == Utils.MODE_DRAW_CIRCLE){
                 int width = Math.abs(startPt.x - endPt.x);
                 int height = Math.abs(startPt.y - endPt.y);
                 int diameter = Math.max(width, height);
                 Point shapeStartPt = getShapeStartPt(startPt, endPt);
-                graphics2D.drawOval(shapeStartPt.x, shapeStartPt.y, diameter, diameter);
+                temp_g2d.drawOval(shapeStartPt.x, shapeStartPt.y, diameter, diameter);
             }
+
+            graphics2D.drawImage(temp_bi, 0, 0, null);
 
             repaint();
         }
-
-        applyGraphicSettings();
     }
 
     public void drawRemote(Color color, Font font, Point endPt, String text)  // receiver method
     {
-        graphics2D.setFont(font);
-        graphics2D.setColor(color);
+        if((endPt != null) && (text != null) && (!text.isEmpty()))
+        {
+            BufferedImage temp_bi = new BufferedImage(getSize().width, getSize().height, BufferedImage.TYPE_INT_ARGB);
+            Graphics2D temp_g2d = (Graphics2D) temp_bi.getGraphics();
+            temp_g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            temp_g2d.setFont(font);
+            temp_g2d.setColor(color);
 
-        if((endPt != null) && (text != null) && (!text.isEmpty())){
-            graphics2D.drawString(text,endPt.x, endPt.y);
+            temp_g2d.drawString(text,endPt.x, endPt.y);
+
+            graphics2D.drawImage(temp_bi, 0, 0, null);
+
             repaint();
         }
-
-        applyGraphicSettings();
     }
 
     public void sendDrawSignalRemote(Point startPt, Point endPt, int mode)  // sender method
