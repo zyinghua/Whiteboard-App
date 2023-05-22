@@ -64,7 +64,10 @@ public class BoardPanel extends JPanel {
         });
         addMouseListener(new MouseAdapter() {  // Account for single discrete mouse action
             public void mousePressed(MouseEvent e) {
-                updateStartPt(e);
+                if (mouseStartPt == null)
+                {
+                    updateStartPt(e);
+                }
             }
             public void mouseReleased(MouseEvent e) {
                 if(currentMode == Utils.MODE_PAINT_TEXT || currentMode == Utils.MODE_FREE_DRAW) {
@@ -75,7 +78,7 @@ public class BoardPanel extends JPanel {
                         || currentMode == Utils.MODE_DRAW_RECT
                         || currentMode == Utils.MODE_DRAW_OVAL
                         || currentMode == Utils.MODE_DRAW_CIRCLE) {
-                    if (mouseEndPt != null) {
+                    if (checkPtsValidity(mouseStartPt, mouseEndPt)) {
                         graphics2D.setXORMode(Color.WHITE);
                         draw();
 
