@@ -576,8 +576,6 @@ public class WhiteboardGUI extends JFrame{
         setTitle(guiName + " - " + user.getUsername());
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         setResizable(false);
-
-        this.colorIcon = new ColorIcon(Color.BLACK);
     }
 
     public void initGUIComponents(){
@@ -607,6 +605,7 @@ public class WhiteboardGUI extends JFrame{
         this.drawOval = new JRadioButtonMenuItem();
         this.drawCir = new JRadioButtonMenuItem();
         this.colorMenu = new JMenu();
+        this.colorIcon = new ColorIcon(Color.BLACK);
         this.colorSelector = new JMenuItem();
         this.textMenu = new JMenu();
         this.paintText = new JRadioButtonMenuItem();
