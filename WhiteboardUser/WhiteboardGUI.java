@@ -605,7 +605,7 @@ public class WhiteboardGUI extends JFrame{
         this.drawOval = new JRadioButtonMenuItem();
         this.drawCir = new JRadioButtonMenuItem();
         this.colorMenu = new JMenu();
-        this.colorIcon = new ColorIcon(Color.BLACK);
+        this.colorIcon = new ColorIcon(this.user.getBoardPanel().getCurrColor());
         this.colorSelector = new JMenuItem();
         this.textMenu = new JMenu();
         this.paintText = new JRadioButtonMenuItem();
